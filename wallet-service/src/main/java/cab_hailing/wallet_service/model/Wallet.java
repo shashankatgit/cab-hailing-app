@@ -25,13 +25,23 @@ public class Wallet {
 	@Column(name = "wallet_id")
 	long walletID;
 	
+	@Column(name = "balance_amt")
+	long balanceAmount;
+	
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="cust_id", referencedColumnName="cust_id")
 	Customer customer;
 	
-	@Column(name = "balance_amt")
-	long balanceAmount;
 	
+	
+	public Wallet(long walletID, long balanceAmount, Customer customer ) {
+		super();
+		this.walletID = walletID;
+		this.customer = customer;
+		this.balanceAmount = balanceAmount;
+	}
+
+
 	public Wallet(Customer customer, long balanceAmount) {
 		this.customer = customer;
 		this.balanceAmount = balanceAmount;

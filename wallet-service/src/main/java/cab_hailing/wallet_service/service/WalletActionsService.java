@@ -26,7 +26,7 @@ import cab_hailing.wallet_service.repository.WalletRepository;
  */
 
 @Service
-public class WalletService {
+public class WalletActionsService {
 	
 	@Autowired
 	CustomerRepository custRep;
@@ -52,6 +52,9 @@ public class WalletService {
 		
 		if(custWallet != null ) {
 			long availBalance = custWallet.getBalanceAmount();
+			
+			
+			
 			if(availBalance >= deductionAmount) {
 				custWallet.setBalanceAmount(availBalance - deductionAmount);
 				walletRep.save(custWallet);

@@ -24,11 +24,19 @@ public class Customer {
 	@Column(name = "cust_id")
 	long custID;
 
-	@OneToOne(mappedBy="customer")
-	Wallet wallet;
 	
+	
+	public Customer(long custID, String password) {
+		super();
+		this.custID = custID;
+		this.password = password;
+	}
+
 	@Column(name = "password")
 	String password;
+	
+	@OneToOne(mappedBy="customer")
+	Wallet wallet;
 
 	public Customer(String password) {
 		super();
@@ -39,7 +47,13 @@ public class Customer {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
+	
+	public Customer(long custID) {
+		super();
+		this.custID = custID;
+		this.password = "pass"+custID;
+	}
+	
 	public long getCustID() {
 		return custID;
 	}
