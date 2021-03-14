@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import cab_hailing.wallet_service.model.Customer;
-import cab_hailing.wallet_service.model.Wallet;
 import cab_hailing.wallet_service.repository.CustomerRepository;
 import cab_hailing.wallet_service.repository.WalletRepository;
 
@@ -67,8 +65,6 @@ public class DBInitializer {
 		DSVFileReaderUtil dsvFileReaderUtil = new DSVFileReaderUtil(csvFilesDirectory + "customers.txt", ',');
 		
 		while( (record = dsvFileReaderUtil.readNextRecord()) != null) {
-//			Customer customer = new Customer(Long.parseLong(record[0]), record[1]);
-//			custRepo.save(customer);
 			entityManager.createNativeQuery("INSERT INTO CUSTOMERS VALUES (?,?)")
 		      .setParameter(1, Long.parseLong(record[0]))
 		      .setParameter(2, record[1])
@@ -79,14 +75,10 @@ public class DBInitializer {
 	@Transactional
 	private void initWalletsTable() throws IOException {
 		String record[];
-
+		
 		// Reading wallets file and loading the table
 		DSVFileReaderUtil dsvFileReaderUtil = new DSVFileReaderUtil(csvFilesDirectory + "wallets.txt", ',');
 		while( (record = dsvFileReaderUtil.readNextRecord()) != null) {
-//			Customer cust = custRepo.findById(Long.parseLong(record[2])).orElse(new Customer(Long.parseLong(record[2])));
-//			Wallet wallet = new Wallet( Long.parseLong(record[0]), Long.parseLong(record[0]), cust);
-//			
-//			walletRepo.save(wallet);
 			
 			entityManager.createNativeQuery("INSERT INTO WALLETS VALUES (?,?,?)")
 		      .setParameter(1, Long.parseLong(record[0]))
