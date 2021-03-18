@@ -1,15 +1,15 @@
 package cab_hailing.cab_service.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-//import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-//import cab_hailing.wallet_service.model.Wallet;
+import cab_hailing.cab_service.values.CabMajorStates;
+import cab_hailing.cab_service.values.CabMinorStates;
 
 
 @Entity
@@ -18,83 +18,121 @@ public class CabStatus {
 	
 	//Columns----------------------------------------------
 	@Id
-	@GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "CabSeqGen"
-    )
-    @SequenceGenerator(name = "CabSeqGen",
-                initialValue = 2001, allocationSize = 1
-    )
 	@Column(name = "cab_id")
-	long cabID;	
+	private Long cabID;	
 	
-	//-----------------------------------------------------
-//	enum Major_State {
-//	    SIGNED_OUT,
-//	    SIGNED_IN
-//	}
-//	
-//	@Column(name = "major_state")
-//	Major_State majorState;	
-	@Column(name = "major_state")
-	long major_state;
+	@Column(name = "major_state",length=2)
+	private String majorState;
 	
-	//-----------------------------------------------------
-//	enum Minor_State {
-//	    AVAILABLE,
-//	    COMMITTED,
-//	    GIVING_RIDE,
-//	    NULL
-//	}	
-//	
-//	@Column(name = "minor_state")
-//	Minor_State minorState;	
-	@Column(name = "minor_state")
-	long minor_state;
+	@Column(name = "minor_state",length=2)
+	private String minorState;
 	
-	//-----------------------------------------------------
 	@Column(name = "curr_ride_id")
-	long currRideID;
+	private Long currRideID;
+	
+	@Column(name = "n_requests_recvd")
+	private Long nRequestsRecvd;
+	
+	@Column(name = "n_rides_given")
+	private Long nRidesGiven;
+	
+	//Getters Setters----------------------------------------------
+	public Long getnRidesGiven() {
+		return nRidesGiven;
+	}
 
-	public long getCabID() {
+	public void setnRidesGiven(Long nRidesGiven) {
+		this.nRidesGiven = nRidesGiven;
+	}
+
+	public Long getnRequestsRecvd() {
+		return nRequestsRecvd;
+	}
+
+	public void setnRequestsRecvd(Long nRequestsRecvd) {
+		this.nRequestsRecvd = nRequestsRecvd;
+	}
+
+	@OneToOne(cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private Cab cab;
+	
+	public CabStatus() {
+		super();
+	}
+	
+	//-----------------------------------------------------
+	
+	
+	
+	
+	
+	//-----------------------------------------------------
+	public CabStatus(Long cabID) {
+		super();
+		this.cabID = cabID;
+		this.majorState = CabMajorStates.SIGNED_OUT;
+		this.minorState = CabMinorStates.NONE;
+		this.currRideID = null;
+		this.nRequestsRecvd= Long.valueOf(0);
+		this.nRidesGiven= Long.valueOf(0);
+	}
+	
+
+	public CabStatus(Long cabID, String majorState, String minorState, Long currRideID, Long nRidesGiven,
+			Long nRequestsRecvd, Cab cab) {
+		super();
+		this.cabID = cabID;
+		this.majorState = majorState;
+		this.minorState = minorState;
+		this.currRideID = currRideID;
+		this.nRidesGiven = nRidesGiven;
+		this.nRequestsRecvd = nRequestsRecvd;
+		this.cab = cab;
+	}
+
+	public Cab getCab() {
+		return cab;
+	}
+
+
+	public void setCab(Cab cab) {
+		this.cab = cab;
+	}
+
+	public Long getCabID() {
 		return cabID;
 	}
 
-	public void setCabID(long cabID) {
+	public void setCabID(Long cabID) {
 		this.cabID = cabID;
 	}
 
-	public long getMajor_state() {
-		return major_state;
-	}
-
-	public void setMajor_state(long major_state) {
-		this.major_state = major_state;
-	}
-
-	public long getMinor_state() {
-		return minor_state;
-	}
-
-	public void setMinor_state(long minor_state) {
-		this.minor_state = minor_state;
-	}
-
-	public long getCurrRideID() {
+	public Long getCurrRideID() {
 		return currRideID;
 	}
 
-	public void setCurrRideID(long currRideID) {
+	public void setCurrRideID(Long currRideID) {
 		this.currRideID = currRideID;
 	}
 
-	public CabStatus(long cabID, long major_state, long minor_state, long currRideID) {
-		super();
-		this.cabID = cabID;
-		this.major_state = major_state;
-		this.minor_state = minor_state;
-		this.currRideID = currRideID;
+	public String getMajorState() {
+		return majorState;
 	}
+
+	public void setMajorState(String majorState) {
+		this.majorState = majorState;
+	}
+
+	public String getMinorState() {
+		return minorState;
+	}
+
+	public void setMinorState(String minorState) {
+		this.minorState = minorState;
+	}
+	
+
 	
 	
 	//-----------------------------------------------------

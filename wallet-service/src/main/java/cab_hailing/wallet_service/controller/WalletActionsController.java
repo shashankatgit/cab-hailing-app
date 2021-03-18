@@ -18,19 +18,19 @@ public class WalletActionsController {
 	DBInitializer dbInitializer;
 	
 	@GetMapping("getBalance")
-	public long getBalance(@RequestParam long custID) {
-		return walletActionsService.getBalance(custID);
+	public long getBalance(@RequestParam long custId) {
+		return walletActionsService.getBalance(custId);
 	}
 	
 	@GetMapping("deductAmount")
-	public boolean deductAmount(@RequestParam long custID, @RequestParam long amount) {
+	public boolean deductAmount(@RequestParam long custId, @RequestParam long amount) {
 		
-		return walletActionsService.deductAmount(custID, amount);
+		return walletActionsService.deductAmount(custId, amount);
 	}
 	
 	@GetMapping("addAmount")
-	public boolean addAmount(@RequestParam long custID, @RequestParam long amount) {
-		return walletActionsService.addAmount(custID, amount);
+	public boolean addAmount(@RequestParam long custId, @RequestParam long amount) {
+		return walletActionsService.addAmount(custId, amount);
 	}
 	
 	@GetMapping("reset")

@@ -5,12 +5,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 //import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-//import cab_hailing.wallet_service.model.Wallet;
 
+//import cab_hailing.wallet_service.model.Wallet;
 
 @Entity
 @Table(name = "Cabs")
@@ -28,19 +29,35 @@ public class Cab {
 	@Column(name = "cab_id")
 	long cabID;	
 	
+	public CabStatus getCabStatus() {
+		return cabStatus;
+	}
+
+
+	public void setCabStatus(CabStatus cabStatus) {
+		this.cabStatus = cabStatus;
+	}
+
 	//-----------------------------------------------------
-	@Column(name = "cab_password")
-	String cabPassword;
+	@Column(name = "password")
+	String password;
+	
+	@OneToOne(mappedBy="cab")
+	CabStatus cabStatus;
 
 	
-	//-----------------------------------------------------
+	//-----------------------------------------------------	
+	public Cab() {
+		super();
+	}
+	
 	public Cab(long cabID, String cabPassword) {
 		super();
 		this.cabID = cabID;
-		this.cabPassword = cabPassword;
+		this.password = cabPassword;
 	}
 	
-
+	
 	//-----------------------------------------------------
 	public long getCabID() {
 		return cabID;
@@ -52,13 +69,15 @@ public class Cab {
 	
 	
 	//-----------------------------------------------------
-	public String getCabPassword() {
-		return cabPassword;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setCabPassword(String cabPassword) {
-		this.cabPassword = cabPassword;
+
+	public void setPassword(String cabPassword) {
+		this.password = cabPassword;
 	}	
+	
 	
 
 }
