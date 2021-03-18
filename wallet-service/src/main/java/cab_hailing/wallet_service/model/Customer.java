@@ -13,6 +13,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "Customers")
 public class Customer {
+	
+	//-----------------------------------------------------
 	@Id
 	@GeneratedValue(
             strategy = GenerationType.SEQUENCE,
@@ -23,21 +25,30 @@ public class Customer {
     )
 	@Column(name = "cust_id")
 	long custID;
-
+	
+	//-----------------------------------------------------
+	@Column(name = "password")
+	String password;
 	
 	
+	//-----------------------------------------------------
+	@OneToOne(mappedBy="customer")
+	Wallet wallet;
+	
+	
+	//-----------------------------------------------------
 	public Customer(long custID, String password) {
 		super();
 		this.custID = custID;
 		this.password = password;
 	}
-
-	@Column(name = "password")
-	String password;
 	
-	@OneToOne(mappedBy="customer")
-	Wallet wallet;
-
+	public Customer(long custID) {
+		super();
+		this.custID = custID;
+		this.password = "pass"+custID;
+	}
+	
 	public Customer(String password) {
 		super();
 		this.password = password;
@@ -48,12 +59,8 @@ public class Customer {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Customer(long custID) {
-		super();
-		this.custID = custID;
-		this.password = "pass"+custID;
-	}
 	
+	//-----------------------------------------------------
 	public long getCustID() {
 		return custID;
 	}
@@ -61,15 +68,9 @@ public class Customer {
 	public void setCustID(long custID) {
 		this.custID = custID;
 	}
-
-	public Wallet getWallet() {
-		return wallet;
-	}
-
-	public void setWallet(Wallet wallet) {
-		this.wallet = wallet;
-	}
-
+	
+	
+	//-----------------------------------------------------
 	public String getPassword() {
 		return password;
 	}
@@ -78,6 +79,14 @@ public class Customer {
 		this.password = password;
 	}
 	
-	
+
+	//-----------------------------------------------------
+	public Wallet getWallet() {
+		return wallet;
+	}
+
+	public void setWallet(Wallet wallet) {
+		this.wallet = wallet;
+	}
 	
 }
