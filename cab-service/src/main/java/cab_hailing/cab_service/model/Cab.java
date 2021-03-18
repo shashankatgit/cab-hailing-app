@@ -57,8 +57,6 @@ public class Cab {
 		this.password = cabPassword;
 	}
 	
-	
-	//-----------------------------------------------------
 	public long getCabID() {
 		return cabID;
 	}
@@ -67,17 +65,12 @@ public class Cab {
 		this.cabID = cabID;
 	}
 	
-	
-	//-----------------------------------------------------
 	public String getPassword() {
 		return password;
 	}
-
 
 	public void setPassword(String cabPassword) {
 		this.password = cabPassword;
 	}	
 	
-	
-
 }
