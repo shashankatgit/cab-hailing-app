@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
@@ -23,67 +25,81 @@ public class Ride {
             generator = "RideSeqGen"
     )
     @SequenceGenerator(name = "RideSeqGen",
-                initialValue = 3001, allocationSize = 1
+                initialValue = 100001, allocationSize = 1
     )
 	@Column(name = "ride_id")
-	private long rideID;	
+	private Long rideID;	
 	
 	@Column(name = "cust_id")
-	private long custID;
+	private Long custID;
+	
+	@Column(name = "src_pos")
+	private Long srcPos;
+	
+	@Column(name = "dest_pos")
+	private Long destPos;
 		
-	@Column(name = "cab_id")
-	private long cabID;
-		
+
 	@Column(name = "ride_state",length=1)
 	private String rideState;
 	
 		
 	//-----------------------------------------------------
-	@OneToOne(cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name="cab_id", referencedColumnName="cab_id")
     private CabStatus cabStatus;
 		
 	
 	//----------------------------------------------
-	public Ride() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	public Ride(long rideID, long custID, long cabID, String rideState, CabStatus cabStatus) {
+	public Ride(Long rideID, Long custID, Long srcPos, Long destPos, String rideState,
+			CabStatus cabStatus) {
 		super();
 		this.rideID = rideID;
 		this.custID = custID;
-		this.cabID = cabID;
+		this.cabStatus = cabStatus;
+		this.srcPos = srcPos;
+		this.destPos = destPos;
 		this.rideState = rideState;
 		this.cabStatus = cabStatus;
 	}
 	
-	
+	public Ride() {
+		super();
+	}
+
 	//----------------------------------------------
-	public long getRideID() {
+	public Long getSrcPos() {
+		return srcPos;
+	}
+
+	public void setSrcPos(Long srcPos) {
+		this.srcPos = srcPos;
+	}
+
+	public Long getDestPos() {
+		return destPos;
+	}
+
+	public void setDestPos(Long destPos) {
+		this.destPos = destPos;
+	}
+	
+	public Long getRideID() {
 		return rideID;
 	}
 
-	public void setRideID(long rideID) {
+	public void setRideID(Long rideID) {
 		this.rideID = rideID;
 	}
 
-	public long getCustID() {
+	public Long getCustID() {
 		return custID;
 	}
 
-	public void setCustID(long custID) {
+	public void setCustID(Long custID) {
 		this.custID = custID;
 	}
 
-	public long getCabID() {
-		return cabID;
-	}
-
-	public void setCabID(long cabID) {
-		this.cabID = cabID;
-	}
 
 	public String getRideState() {
 		return rideState;

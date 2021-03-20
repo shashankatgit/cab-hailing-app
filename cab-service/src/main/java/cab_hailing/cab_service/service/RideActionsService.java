@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import cab_hailing.cab_service.Logger;
 import cab_hailing.cab_service.model.Cab;
 import cab_hailing.cab_service.model.CabStatus;
 import cab_hailing.cab_service.repository.CabRepository;
 import cab_hailing.cab_service.repository.CabStatusRepository;
+import cab_hailing.cab_service.rest_consumers.RideServiceRestConsumer;
 import cab_hailing.cab_service.values.CabMajorStates;
 import cab_hailing.cab_service.values.CabMinorStates;
 
@@ -18,6 +20,9 @@ public class RideActionsService {
 	
 	@Autowired
 	CabStatusRepository cabStatusRepo;
+	
+	@Autowired
+	RideServiceRestConsumer rideServiceRestConsumer;
 	
 	@Transactional
 	public boolean requestRide(long cabID, long rideID, long sourceLoc, long destinationLoc) {
@@ -48,6 +53,7 @@ public class RideActionsService {
 			}
 			
 			cabStatus.setCurrRideID(rideID);
+			cabStatus.setMinorState(CabMinorStates.COMMITTED);
 			cabStatusRepo.save(cabStatus);
 			return true;	
 		}			
@@ -114,6 +120,8 @@ public class RideActionsService {
 				return false;
 			
 			cabStatus.setMinorState(CabMinorStates.GIVING_RIDE);
+			cabStatus.setnRidesGiven(cabStatus.getnRidesGiven()+1);
+			
 			cabStatusRepo.save(cabStatus);
 			
 			return true;
@@ -148,9 +156,12 @@ public class RideActionsService {
 			
 			// forward the request to RideService
 			// if RideService responds with success, set status to available
-			if(true) {
+			boolean ifRideEnded = rideServiceRestConsumer.consumeRideEnded(rideID);
+			if(ifRideEnded) {
+				Logger.log("Ride ended for ride id : "+rideID);
 				cabStatus.setMinorState(CabMinorStates.AVAILABLE);
 				cabStatus.setCurrRideID(null);
+				
 				cabStatusRepo.save(cabStatus);
 				
 				return true;

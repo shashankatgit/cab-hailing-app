@@ -1,15 +1,19 @@
 package cab_hailing.ride_service.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import cab_hailing.ride_service.values.CabMajorStates;
 import cab_hailing.ride_service.values.CabMinorStates;
 
 @Entity
-@Table(name = "Cab_Status")
+@Table(name = "Cab_Status") // TODO - Add an index for current position of cab
 public class CabStatus {
 
 	// Columns----------------------------------------------
@@ -27,8 +31,15 @@ public class CabStatus {
 	private Long currPos;
 
 	// -----------------------------------------------------
-	@OneToOne(mappedBy = "cabStatus")
-	private Ride ride;
+	@OneToMany(mappedBy = "cabStatus")
+	private List<Ride> rides;
+
+	// -------------------------------------------------------
+	@Override
+	public String toString() {
+		return String.format("CabID:%d, CurPos:%d, MajState:%s, MinState:%s", this.cabID, this.currPos,
+				this.majorState, this.minorState);
+	}
 
 	// -------------------------------------------------------
 	public CabStatus() {
@@ -36,13 +47,12 @@ public class CabStatus {
 		// TODO Auto-generated constructor stub
 	}
 
-	public CabStatus(Long cabID, String majorState, String minorState, Long currPos, Ride ride) {
+	public CabStatus(Long cabID, String majorState, String minorState, Long currPos) {
 		super();
 		this.cabID = cabID;
 		this.majorState = majorState;
 		this.minorState = minorState;
 		this.currPos = currPos;
-		this.ride = ride;
 	}
 
 	public CabStatus(Long cabID, Long currPos) {
@@ -86,12 +96,12 @@ public class CabStatus {
 		this.currPos = currPos;
 	}
 
-	public Ride getRide() {
-		return ride;
+	public List<Ride> getRides() {
+		return rides;
 	}
 
-	public void setRide(Ride ride) {
-		this.ride = ride;
+	public void setRides(List<Ride> rides) {
+		this.rides = rides;
 	}
 
 }

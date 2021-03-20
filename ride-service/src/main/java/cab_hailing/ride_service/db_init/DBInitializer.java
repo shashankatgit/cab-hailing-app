@@ -37,8 +37,8 @@ public class DBInitializer {
 	public void initAllTables() {
 		System.out.println("LOG : Trying to load all DB tables from files in folder : " + csvFilesDirectory);
 		try {
-			initRideTable();
 			initCabStatusTable();
+			initRideTable();
 			System.out.println("LOG : All table initialization complete");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

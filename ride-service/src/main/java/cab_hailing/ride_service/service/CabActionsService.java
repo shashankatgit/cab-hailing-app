@@ -1,13 +1,21 @@
 package cab_hailing.ride_service.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import cab_hailing.ride_service.Logger;
 import cab_hailing.ride_service.model.CabStatus;
+import cab_hailing.ride_service.model.Ride;
 import cab_hailing.ride_service.repository.CabStatusRepository;
 import cab_hailing.ride_service.repository.RideRepository;
+import cab_hailing.ride_service.rest_consumers.CabServiceRestConsumer;
 import cab_hailing.ride_service.values.CabMajorStates;
 import cab_hailing.ride_service.values.CabMinorStates;
+import cab_hailing.ride_service.values.RideStates;
 
 @Component
 public class CabActionsService {
@@ -20,6 +28,9 @@ public class CabActionsService {
 	@Autowired
 	CabStatusRepository cabStatusRepo;
 
+	@Autowired
+	CabServiceRestConsumer cabServiceRestConsumer;
+
 	// ---------------------------------------------------------------------------------------------
 
 	/*
@@ -31,7 +42,7 @@ public class CabActionsService {
 	public boolean cabSignsIn(long cabID, long initialPos) {
 
 		// Check if cab id is valid
-		// TODO: If cab status record not found, then insert the record houldn't happen
+		// If cab status record not found, then insert the record houldn't happen
 		// ideally, but if so, then this is a quick fix
 		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
 		if (cabStatus == null) {
@@ -78,14 +89,14 @@ public class CabActionsService {
 				cabStatusRepo.save(cabStatus);
 				return true;
 			}
-			
+
 		}
 
 		return false;
 	}
 
 	// ---------------------------------------------------------------------------------------------
-	
+
 	/*
 	 * This end-point is mainly to enable testing. Returns a tuple of strings
 	 * indicating the current state of the cab
@@ -98,43 +109,110 @@ public class CabActionsService {
 	 * destination of the last ride if it is in available state and gave a ride
 	 * after sign-in, and is -1 if it is in signed-out state.
 	 * 
+	 * Final String : <SIGNED_OUT/AVAILABLE/COMMITTED/GIVING_RIDE> <LAST_KNOWN_POS>
+	 * [<CUST_ID> <DEST_LOC>]
 	 */
-	
+
 	@Transactional
 	public String getCabStatus(long cabID) {
-		
+		Logger.log("Received getCabStatus request for cab id : "+cabID);
 		// Check if cab id is valid
 		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
+
+		String finalResponse = "";
+		String cabStateStr = "";
+		String lastKnownPosStr = "";
+		String custIDStr = "";
+		String destLocStr = "";
 
 		// Check if cab is in AVAILABLE state
 		if (cabStatus != null) {
 			String cabMajorState = cabStatus.getMajorState();
 			String cabMinorState = cabStatus.getMinorState();
-			Long currPos = cabStatus.getCurrPos().longValue();
-			
-			String status = "";
-			
-			if(cabMajorState != null) {
-				if(cabMajorState.equals(CabMajorStates.SIGNED_OUT)) {
-					status += "SIGNED_OUT ";
-				}else if(cabMajorState.equals(CabMajorStates.SIGNED_IN)){
-					if(cabMinorState.equals(CabMinorStates.AVAILABLE)) {
-						status += "AVAILABLE ";
-					}else if(cabMinorState.equals(CabMinorStates.COMMITTED)){
-						status += "COMMITTED ";
-					}else {
-						status += "GIVING_RIDE ";
+
+			if (cabMajorState != null) {
+				if (cabMajorState.equals(CabMajorStates.SIGNED_OUT)) {
+					cabStateStr = "SIGNED_OUT";
+				} else if (cabMajorState.equals(CabMajorStates.SIGNED_IN)) {
+					if (cabMinorState.equals(CabMinorStates.AVAILABLE)) {
+						cabStateStr = "AVAILABLE";
+					} else if (cabMinorState.equals(CabMinorStates.COMMITTED)) {
+						cabStateStr = "COMMITTED";
+					} else if (cabMinorState.equals(CabMinorStates.GIVING_RIDE)) {
+						cabStateStr = "GIVING_RIDE";
+
+					} else {
+						cabStateStr = "Error";
+						Logger.log("Invalid minor state of cab id : " + cabID);
 					}
 				}
 			}
+
+			lastKnownPosStr = cabStatus.getCurrPos().toString();
 			
-			status += currPos;
+			finalResponse = cabStateStr +" "+lastKnownPosStr;
 			
-			return status;
+			if (cabMinorState.equals(CabMinorStates.GIVING_RIDE)) {
+				Ride ride = rideRepo.findTopByCabStatusAndRideState(cabStatus, RideStates.ONGOING);
+
+				if (ride == null) {
+					Logger.log("Missing row in rides table for a cab in giving ride state for cab id : " + cabID);
+					return finalResponse+" error";
+				}
+				
+				custIDStr = ride.getCustID().toString();
+				destLocStr = ride.getDestPos().toString();
+				
+				finalResponse+=" "+custIDStr+" "+destLocStr;
+				
+				return finalResponse;
+			}
+			return finalResponse;
 		}
 		
+		Logger.log("Couldn't find cab id : "+cabID + " for getCabStatus");
 		return "-1";
 	}
 
+	// ---------------------------------------------------------------------------------------------
+	/*
+	 * This end-point will be mainly useful during testing. Send Cab.rideEnded
+	 * requests to all cabs that are currently in giving-ride state, then send
+	 * Cab.signOut requests to all cabs that are currently in sign-in state.
+	 */
+	// Not transactional
+	public void reset() {
+		List<CabStatus> cabStausList = new ArrayList<>();
+		cabStausList = cabStatusRepo.findAllByMinorState(CabMinorStates.GIVING_RIDE);
+
+		for (CabStatus cabStatus : cabStausList) {
+			long cabID = cabStatus.getCabID();
+			Ride ride = rideRepo.findTopByCabStatusAndRideState(cabStatus, RideStates.ONGOING);
+			
+			if(ride != null) {
+				long rideID = ride.getRideID();
+				
+				boolean ifRideEnded = cabServiceRestConsumer.consumeRideEnded(cabID, rideID);
+				if (ifRideEnded) {
+					Logger.log("Ride ended successfully with CabID: " + cabID + "and rideID: " + rideID);
+				} else {
+					Logger.log("Could not end ride with CabID: " + cabID + "and rideID: " + rideID);
+				}
+			}
+		}
+
+		cabStausList = cabStatusRepo.findAllByMajorState(CabMajorStates.SIGNED_IN);
+
+		for (CabStatus cabStatus : cabStausList) {
+			long cabID = cabStatus.getCabID();
+
+			boolean ifSignedOut = cabServiceRestConsumer.consumeSignOut(cabID);
+			if (ifSignedOut) {
+				Logger.log("Cab signed out successfully with CabID: " + cabID);
+			} else {
+				Logger.log("Could not sign out cab with CabID: " + cabID);
+			}
+		}
+	}
 
 }

@@ -32,7 +32,7 @@ public class RideActionsController {
 	}
 
 	@GetMapping("requestRide")
-	public int requestRide(@RequestParam int custId, @RequestParam int sourceLoc, @RequestParam int destinationLoc) {
+	public long requestRide(@RequestParam int custId, @RequestParam int sourceLoc, @RequestParam int destinationLoc) {
 		return rideActionsService.requestRide(custId, sourceLoc, destinationLoc);
 	}
 
@@ -43,7 +43,7 @@ public class RideActionsController {
 
 	@GetMapping("reset")
 	public void reset() {
-
+		cabActionsService.reset();
 	}
 
 }

@@ -3,10 +3,13 @@ package cab_hailing.cab_service.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import cab_hailing.cab_service.Logger;
 import cab_hailing.cab_service.model.Cab;
 import cab_hailing.cab_service.model.CabStatus;
 import cab_hailing.cab_service.repository.CabRepository;
 import cab_hailing.cab_service.repository.CabStatusRepository;
+import cab_hailing.cab_service.rest_consumers.RideServiceRestConsumer;
 import cab_hailing.cab_service.values.CabMajorStates;
 import cab_hailing.cab_service.values.CabMinorStates;
 
@@ -20,6 +23,9 @@ public class CabActionsService {
 
 	@Autowired
 	CabStatusRepository cabStatusRepo;
+	
+	@Autowired
+	RideServiceRestConsumer rideServiceRestConsumer;
 
 	// ---------------------------------------------------------------------------------------------
 
@@ -33,10 +39,11 @@ public class CabActionsService {
 	 */
 	@Transactional
 	public boolean signIn(long cabID, long initialPos) {
-
+		Logger.log("Received sign in request for cab id : " + cabID);
 		// Check if cabID is valid
 		Cab cab = cabRepo.findById(cabID).orElse(null);
 		if (cab == null) {
+			Logger.log("Cab id : "+cabID+" is invalid so return false for signIn");
 			return false;
 		}
 
@@ -52,17 +59,20 @@ public class CabActionsService {
 		// Check if cab is in SIGNED_OUT state
 		if (cabStatus.getMajorState() != null && cabStatus.getMajorState().equals(CabMajorStates.SIGNED_OUT)) {
 
-			// TODO:forward the request to RideService
-
 			// If RideService responds with success
-			if (true) {
+			boolean ifCabSignsIn = rideServiceRestConsumer.consumeCabSignsIn(cabID, initialPos);
+			if (ifCabSignsIn) {
 				cabStatus.setMajorState(CabMajorStates.SIGNED_IN);
 				cabStatus.setMinorState(CabMinorStates.AVAILABLE);
 				cabStatusRepo.save(cabStatus);
+				
+				Logger.log("Successfully signed in cab id : "+cabID);
+				
 				return true;
 			}
 		}
-
+		
+		Logger.log("Reached end of function and couldn't sign in cab id : "+cabID);
 		return false;
 	}
 
@@ -78,10 +88,11 @@ public class CabActionsService {
 	 */
 	@Transactional
 	public boolean signOut(long cabID) {
-
+		Logger.log("Received sign out request for cab id : " + cabID);
 		// Check if cabID is valid
 		Cab cab = cabRepo.findById(cabID).orElse(null);
 		if (cab == null) {
+			Logger.log("Cab id : "+cabID+" is invalid so return false for signOut");
 			return false;
 		}
 
@@ -94,23 +105,36 @@ public class CabActionsService {
 
 			// Check if cab is SIGNED_IN
 			if (cabMajorState == null || !cabMajorState.equals(CabMajorStates.SIGNED_IN))
-				return false;
+				{
+					Logger.log("Cab not in signed in state so couldn't sign out cab id : "+cabID);
+					return false;
+				}
 
 			// Check if cab is AVAILABLE
 			if (cabMinorState == null || !cabMinorState.equals(CabMinorStates.AVAILABLE))
-				return false;
+				{
+					Logger.log("Cab not in available state so couldn't sign out cab id : "+cabID);
+					return false;
+				}
 
-			// TODO:forward the request to RideService
 
 			// If RideService responds with success
-			if (true) {
+			boolean ifCabSignsOut = rideServiceRestConsumer.consumeCabSignsOut(cabID);
+			if (ifCabSignsOut) {
 				cabStatus.setMajorState(CabMajorStates.SIGNED_OUT);
 				cabStatus.setMinorState(CabMinorStates.NONE);
+				cabStatus.setnRidesGiven(Long.valueOf(0));
+				cabStatus.setnRequestsRecvd(Long.valueOf(0));
+				cabStatus.setCurrRideID(null);
 				cabStatusRepo.save(cabStatus);
+				
+				Logger.log("Successfully signed out cab id : "+cabID);
+				
 				return true;
 			}
 		}
-
+		
+		Logger.log("Reached end of function and couldn't sign out cab id : "+cabID);
 		return false;
 	}
 
