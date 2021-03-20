@@ -1,17 +1,15 @@
 package cab_hailing.cab_service.model;
 
-import javax.persistence.Column;
+
+import javax.persistence.Column;  
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-//import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-
-//import cab_hailing.wallet_service.model.Wallet;
 
 @Entity
 @Table(name = "Cabs")
@@ -27,23 +25,15 @@ public class Cab {
                 initialValue = 2001, allocationSize = 1
     )
 	@Column(name = "cab_id")
-	long cabID;	
+	private long cabID;	
 	
-	public CabStatus getCabStatus() {
-		return cabStatus;
-	}
-
-
-	public void setCabStatus(CabStatus cabStatus) {
-		this.cabStatus = cabStatus;
-	}
-
-	//-----------------------------------------------------
 	@Column(name = "password")
-	String password;
+	private String password;
 	
+	
+	//-----------------------------------------------------	
 	@OneToOne(mappedBy="cab")
-	CabStatus cabStatus;
+	private CabStatus cabStatus;
 
 	
 	//-----------------------------------------------------	
@@ -57,6 +47,8 @@ public class Cab {
 		this.password = cabPassword;
 	}
 	
+	
+	//-----------------------------------------------------	
 	public long getCabID() {
 		return cabID;
 	}
@@ -72,5 +64,13 @@ public class Cab {
 	public void setPassword(String cabPassword) {
 		this.password = cabPassword;
 	}	
+	
+	public CabStatus getCabStatus() {
+		return cabStatus;
+	}
+
+	public void setCabStatus(CabStatus cabStatus) {
+		this.cabStatus = cabStatus;
+	}
 	
 }
