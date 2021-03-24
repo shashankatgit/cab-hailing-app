@@ -23,7 +23,7 @@ public class CabActionsService {
 
 	@Autowired
 	CabStatusRepository cabStatusRepo;
-	
+
 	@Autowired
 	RideServiceRestConsumer rideServiceRestConsumer;
 
@@ -43,13 +43,15 @@ public class CabActionsService {
 		// Check if cabID is valid
 		Cab cab = cabRepo.findById(cabID).orElse(null);
 		if (cab == null) {
-			Logger.log("Cab id : "+cabID+" is invalid so return false for signIn");
+			Logger.logErr("Cab id : " + cabID + " is invalid so return false for signIn");
 			return false;
 		}
 
-		// Get corresponding record from cab_status. If cab status record not found,
-		// then insert the record houldn't happen ideally, but if so, then this is a
-		// quick fix
+		/*
+		 * Get corresponding record from cab_status. If cab status record not found,
+		 * then insert the record houldn't happen ideally, but if so, it is a quick fix
+		 * to insert the record
+		 */
 		CabStatus cabStatus = cab.getCabStatus();
 		if (cabStatus == null) {
 			cabStatus = new CabStatus(cabID);
@@ -60,19 +62,23 @@ public class CabActionsService {
 		if (cabStatus.getMajorState() != null && cabStatus.getMajorState().equals(CabMajorStates.SIGNED_OUT)) {
 
 			// If RideService responds with success
-			boolean ifCabSignsIn = rideServiceRestConsumer.consumeCabSignsIn(cabID, initialPos);
-			if (ifCabSignsIn) {
+			boolean ifCabSignsInSuccess = rideServiceRestConsumer.consumeCabSignsIn(cabID, initialPos);
+			if (ifCabSignsInSuccess) {
 				cabStatus.setMajorState(CabMajorStates.SIGNED_IN);
 				cabStatus.setMinorState(CabMinorStates.AVAILABLE);
+				cabStatus.setCurrRideID(null);
+				cabStatus.setnRequestsRecvd(Long.valueOf(0));
+				cabStatus.setnRidesGiven(Long.valueOf(0));
+
 				cabStatusRepo.save(cabStatus);
-				
-				Logger.log("Successfully signed in cab id : "+cabID);
-				
+
+				Logger.log("Successfully signed in cab id : " + cabID);
+
 				return true;
 			}
 		}
-		
-		Logger.log("Reached end of function and couldn't sign in cab id : "+cabID);
+
+		Logger.logErr("Reached end of function and couldn't sign in cab id : " + cabID);
 		return false;
 	}
 
@@ -89,10 +95,11 @@ public class CabActionsService {
 	@Transactional
 	public boolean signOut(long cabID) {
 		Logger.log("Received sign out request for cab id : " + cabID);
+
 		// Check if cabID is valid
 		Cab cab = cabRepo.findById(cabID).orElse(null);
 		if (cab == null) {
-			Logger.log("Cab id : "+cabID+" is invalid so return false for signOut");
+			Logger.logErr("Cab id : " + cabID + " is invalid so return false for signOut");
 			return false;
 		}
 
@@ -104,19 +111,16 @@ public class CabActionsService {
 			String cabMinorState = cabStatus.getMinorState();
 
 			// Check if cab is SIGNED_IN
-			if (cabMajorState == null || !cabMajorState.equals(CabMajorStates.SIGNED_IN))
-				{
-					Logger.log("Cab not in signed in state so couldn't sign out cab id : "+cabID);
-					return false;
-				}
+			if (cabMajorState == null || !cabMajorState.equals(CabMajorStates.SIGNED_IN)) {
+				Logger.logErr("Cab not in signed in state so couldn't sign out cab id : " + cabID);
+				return false;
+			}
 
 			// Check if cab is AVAILABLE
-			if (cabMinorState == null || !cabMinorState.equals(CabMinorStates.AVAILABLE))
-				{
-					Logger.log("Cab not in available state so couldn't sign out cab id : "+cabID);
-					return false;
-				}
-
+			if (cabMinorState == null || !cabMinorState.equals(CabMinorStates.AVAILABLE)) {
+				Logger.logErr("Cab not in available state so couldn't sign out cab id : " + cabID);
+				return false;
+			}
 
 			// If RideService responds with success
 			boolean ifCabSignsOut = rideServiceRestConsumer.consumeCabSignsOut(cabID);
@@ -127,14 +131,14 @@ public class CabActionsService {
 				cabStatus.setnRequestsRecvd(Long.valueOf(0));
 				cabStatus.setCurrRideID(null);
 				cabStatusRepo.save(cabStatus);
-				
-				Logger.log("Successfully signed out cab id : "+cabID);
-				
+
+				Logger.log("Successfully signed out cab id : " + cabID);
+
 				return true;
 			}
 		}
-		
-		Logger.log("Reached end of function and couldn't sign out cab id : "+cabID);
+
+		Logger.logErr("Reached end of function and couldn't sign out cab id : " + cabID);
 		return false;
 	}
 
@@ -148,8 +152,11 @@ public class CabActionsService {
 	 */
 	@Transactional
 	public long numRides(long cabID) {
+		Logger.log("Received request numRides for Cab id : " + cabID);
+		
 		Cab cab = cabRepo.findById(cabID).orElse(null);
 		if (cab == null) {
+			Logger.logErr("Cab id : " + cabID + " is not valid so return -1");
 			return -1;
 		}
 
@@ -159,9 +166,13 @@ public class CabActionsService {
 			Long nRidesGiven = cabStatus.getnRidesGiven();
 
 			// cab is signed in and available
-			if (nRidesGiven != null)
+			if (nRidesGiven != null) {
+				Logger.log("numRides request success for Cab id : " + cabID + ", returned : " + nRidesGiven.longValue());
 				return nRidesGiven.longValue();
+			}
 		}
+		
+		Logger.logErr("Reached end of numRides function for Cab id : " + cabID + ", so return -1");
 		return -1;
 	}
 

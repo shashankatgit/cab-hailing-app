@@ -19,5 +19,9 @@ public class Logger {
 		System.out.println("\n\n\n-----------------RESET CALLED--------------------\n");
 		log(logString);
 	}
-
+	
+	public static void logErr(String logString) {
+		System.out.println("-----------------UNEXPECTED ERROR--------------------");
+		log(logString);
+	}
 }

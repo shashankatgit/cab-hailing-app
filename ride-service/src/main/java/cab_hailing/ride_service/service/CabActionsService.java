@@ -41,18 +41,19 @@ public class CabActionsService {
 	@Transactional
 	public boolean cabSignsIn(long cabID, long initialPos) {
 
-		// Check if cab id is valid
-		// If cab status record not found, then insert the record houldn't happen
-		// ideally, but if so, then this is a quick fix
+		/*
+		 * Check if cab id is valid If cab status record not found, then insert the
+		 * record houldn't happen ideally, but if so, then this is a quick fix
+		 */
 		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
 		if (cabStatus == null) {
 			cabStatus = new CabStatus(cabID, initialPos);
 			cabStatus = cabStatusRepo.save(cabStatus);
 		}
 
-		// Check if cab is in AVAILABLE state
 		String cabMajorState = cabStatus.getMajorState();
 
+		// Check if cab is in SIGNED_OUT state
 		if (cabMajorState != null && cabMajorState.equals(CabMajorStates.SIGNED_OUT)) {
 			cabStatus.setMajorState(CabMajorStates.SIGNED_IN);
 			cabStatus.setMinorState(CabMinorStates.AVAILABLE);
@@ -72,6 +73,7 @@ public class CabActionsService {
 	 */
 	@Transactional
 	public boolean cabSignsOut(long cabID) {
+		Logger.log("Received request from Cab Service for sign out for cab id : " + cabID);
 
 		// Check if cab id is valid
 		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
@@ -86,12 +88,16 @@ public class CabActionsService {
 				cabStatus.setMajorState(CabMajorStates.SIGNED_OUT);
 				cabStatus.setMinorState(CabMinorStates.NONE);
 				cabStatus.setCurrPos(Long.valueOf(-1));
+
 				cabStatusRepo.save(cabStatus);
+
+				Logger.log("Successfully signed out cab id : " + cabID);
 				return true;
 			}
 
 		}
 
+		Logger.logErr("Reached end of sign out function and couldn't sign out cab id : " + cabID);
 		return false;
 	}
 
@@ -105,9 +111,10 @@ public class CabActionsService {
 	 * the tuple should be separated by single spaces, and the tuple should not have
 	 * any beginning and ending demarcators. Last known position is the source
 	 * position of the current ride if the cab is in giving-ride state, is the
-	 * sign-in location if it has signed in but not given any ride yet, is the
-	 * destination of the last ride if it is in available state and gave a ride
-	 * after sign-in, and is -1 if it is in signed-out state.
+	 * sign-in location if it has signed in but never entered giving-ride state
+	 * after signing in, is the destination of the last ride if it is currently in
+	 * available or committed state and gave a ride after sign-in, and is -1 if it
+	 * is in signed-out state.
 	 * 
 	 * Final String : <SIGNED_OUT/AVAILABLE/COMMITTED/GIVING_RIDE> <LAST_KNOWN_POS>
 	 * [<CUST_ID> <DEST_LOC>]
@@ -115,7 +122,7 @@ public class CabActionsService {
 
 	@Transactional
 	public String getCabStatus(long cabID) {
-		Logger.log("Received getCabStatus request for cab id : "+cabID);
+		Logger.log("Received getCabStatus request for cab id : " + cabID);
 		// Check if cab id is valid
 		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
 
@@ -143,35 +150,36 @@ public class CabActionsService {
 
 					} else {
 						cabStateStr = "Error";
-						Logger.log("Invalid minor state of cab id : " + cabID);
+						Logger.logErr("getCabStatus : Invalid minor state of cab id : " + cabID);
 					}
 				}
 			}
 
 			lastKnownPosStr = cabStatus.getCurrPos().toString();
-			
-			finalResponse = cabStateStr +" "+lastKnownPosStr;
-			
+
+			finalResponse = cabStateStr + " " + lastKnownPosStr;
+
 			if (cabMinorState.equals(CabMinorStates.GIVING_RIDE)) {
 				Ride ride = rideRepo.findTopByCabStatusAndRideState(cabStatus, RideStates.ONGOING);
 
 				if (ride == null) {
-					Logger.log("Missing row in rides table for a cab in giving ride state for cab id : " + cabID);
-					return finalResponse+" error";
+					Logger.log("getCabStatus : Missing row in rides table for a cab in giving ride state for cab id : " + cabID);
+					return finalResponse + " error";
 				}
-				
+
 				custIDStr = ride.getCustID().toString();
 				destLocStr = ride.getDestPos().toString();
-				
-				finalResponse+=" "+custIDStr+" "+destLocStr;
-				
+
+				finalResponse += " " + custIDStr + " " + destLocStr;
+
 				return finalResponse;
 			}
+			
 			return finalResponse;
 		}
-		
-		Logger.log("Couldn't find cab id : "+cabID + " for getCabStatus");
-		return "-1";
+
+		Logger.log("Couldn't find cab id : " + cabID + " for getCabStatus");
+		return "ERROR";
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -183,23 +191,23 @@ public class CabActionsService {
 	// Not transactional
 	public void reset() {
 		List<CabStatus> cabStausList = new ArrayList<>();
-		
+
 		Logger.logReset("Received reset request");
-		
+
 		cabStausList = cabStatusRepo.findAllByMinorState(CabMinorStates.GIVING_RIDE);
 
 		for (CabStatus cabStatus : cabStausList) {
 			long cabID = cabStatus.getCabID();
 			Ride ride = rideRepo.findTopByCabStatusAndRideState(cabStatus, RideStates.ONGOING);
-			
-			if(ride != null) {
+
+			if (ride != null) {
 				long rideID = ride.getRideID();
-				
+
 				boolean ifRideEnded = cabServiceRestConsumer.consumeRideEnded(cabID, rideID);
 				if (ifRideEnded) {
 					Logger.log("Reset : Ride ended successfully with CabID: " + cabID + "and rideID: " + rideID);
 				} else {
-					Logger.log("Reset : Could not end ride with CabID: " + cabID + "and rideID: " + rideID);
+					Logger.logErr("Reset : Could not end ride with CabID: " + cabID + "and rideID: " + rideID);
 				}
 			}
 		}
@@ -213,11 +221,12 @@ public class CabActionsService {
 			if (ifSignedOut) {
 				Logger.log("Reset : Cab signed out successfully with CabID: " + cabID);
 			} else {
-				Logger.log("Reset : Could not sign out cab with CabID: " + cabID);
+				Logger.logErr("Reset : Could not sign out cab with CabID: " + cabID);
 			}
 		}
-		
+
 		Logger.log("Reset request completed");
+		return;
 	}
 
 }

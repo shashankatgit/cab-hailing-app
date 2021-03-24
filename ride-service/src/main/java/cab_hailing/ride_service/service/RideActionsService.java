@@ -46,33 +46,33 @@ public class RideActionsService {
 	@Transactional
 	public boolean rideEnded(long rideId) {
 		Logger.log("Received rideEnded request for ride id : " + rideId);
+
 		// Check if ride id is valid
 		Ride ride = rideRepo.findById(rideId).orElse(null);
+
 		if (ride != null) {
 			String rideStatus = ride.getRideState();
 
 			if (rideStatus != null && rideStatus.equals(RideStates.ONGOING)) {
 				ride.setRideState(RideStates.COMPLETED);
+
 				CabStatus cabStatus = ride.getCabStatus();
 				cabStatus.setMinorState(CabMinorStates.AVAILABLE);
-
 				cabStatus.setCurrPos(ride.getDestPos());
 
 				rideRepo.save(ride);
 				cabStatusRepo.save(cabStatus);
-				
+
 				Logger.log("Ride ended successfully for ride id : " + rideId);
 				return true;
+			} else {
+				Logger.log("Ride id : " + rideId + " is not in ongoing state, so return false");
 			}
-			else {
-				Logger.log("Ride id : "+rideId+" is not in ongoing state, so return false");
-			}
-		}
-		else {
+		} else {
 			Logger.log("Couldn't find ride id : " + rideId + ", so return false");
 		}
 
-		
+		Logger.logErr("Reached end of function rideEnded so returning false for ride id : " + rideId);
 		return false;
 	}
 
@@ -100,8 +100,6 @@ public class RideActionsService {
 	 */
 	@Transactional
 	public long requestRide(long custID, long sourceLoc, long destinationLoc) {
-		// TODO: Update currPos = sourceLoc
-
 		// Generate a globally unique rideId
 		Ride ride = new Ride();
 		ride.setSrcPos(sourceLoc);
@@ -112,30 +110,31 @@ public class RideActionsService {
 		long rideID = ride.getRideID();
 
 		List<CabStatus> candidateCabs = new ArrayList<CabStatus>();
-		candidateCabs.addAll(cabStatusRepo
-				.findTop3ByCurrPosGreaterThanEqualAndMajorStateAndMinorStateOrderByCurrPosAsc(sourceLoc, "I", "A"));
-		candidateCabs.addAll(cabStatusRepo
-				.findTop3ByCurrPosLessThanAndMajorStateAndMinorStateOrderByCurrPosDesc(sourceLoc, "I", "A"));
+		candidateCabs.addAll(cabStatusRepo.findTop3ByCurrPosGreaterThanEqualAndMajorStateAndMinorStateOrderByCurrPosAsc(
+				sourceLoc, CabMajorStates.SIGNED_IN, CabMinorStates.AVAILABLE));
 
-		CabStatus selectedCab = null;
+		candidateCabs.addAll(cabStatusRepo.findTop3ByCurrPosLessThanAndMajorStateAndMinorStateOrderByCurrPosDesc(
+				sourceLoc, CabMajorStates.SIGNED_IN, CabMinorStates.AVAILABLE));
 
+		// Now we sort cab list by distance - nearest first
 		candidateCabs.sort(new CabStatusComparatorByCurPos(sourceLoc));
 
-		// Now we have sorted cab list
+		CabStatus selectedCab = null;
 		int nTries = 0;
-		for (CabStatus candidateCab : candidateCabs) {
-			System.out.println(candidateCab);
 
-			boolean ifAccept = cabServiceRestConsumer.consumeRequestRide(candidateCab.getCabID(), rideID, sourceLoc,
-					destinationLoc);
-			if (ifAccept) {
-				System.out.println("LOG : Cab ID : " + candidateCab.getCabID() + " accepted the ride request");
+		for (CabStatus candidateCab : candidateCabs) {
+			Logger.log("requestRide: Checking if cab : " + candidateCab + " can accept ride");
+
+			boolean ifAcceptSuccess = cabServiceRestConsumer.consumeRequestRide(candidateCab.getCabID(), rideID,
+					sourceLoc, destinationLoc);
+			if (ifAcceptSuccess) {
+				Logger.log("requestRide: Cab ID : " + candidateCab.getCabID() + " accepted the ride request");
 				selectedCab = candidateCab;
 				break;
 			}
 			nTries++;
 			if (nTries >= 3) {
-				System.out.println("LOG : Couldn't find any ride after 3 attempts");
+				Logger.logErr("requestRide: Couldn't find any ride after 3 attempts");
 				return -1;
 			}
 		}
@@ -143,20 +142,21 @@ public class RideActionsService {
 		// if a cab accepted the ride
 		if (selectedCab != null) {
 			long fare = calcFare(sourceLoc, selectedCab.getCurrPos(), destinationLoc);
-			Logger.log("Calculated fare for ride id : " + rideID + " is : " + fare);
+			Logger.log("requestRide: Calculated fare for ride id : " + rideID + " is : " + fare);
 
 			// attempt wallet deduction for the consumer
 			boolean ifDeductionSuccess = walletServiceRestConsumer.consumeDeductAmount(custID, fare);
 
 			if (ifDeductionSuccess) {
-				System.out.println("LOG : Amount deduction from wallet success for user : " + custID);
+				Logger.log("requestRide: Amount deduction from wallet success for user : " + custID);
 				// If the deduction was a success, send request Cab.rideStarted to the accepting
 				// cabId
-				boolean ifRideStarted = cabServiceRestConsumer.consumeRideStarted(selectedCab.getCabID(), rideID);
-				if (ifRideStarted) {
-					Logger.log("Ride started, CabID: " + selectedCab.getCabID() + ", RideID: " + rideID);
+				boolean ifRideStartedSuccess = cabServiceRestConsumer.consumeRideStarted(selectedCab.getCabID(),
+						rideID);
+				if (ifRideStartedSuccess) {
 					ride.setCabStatus(selectedCab);
 					ride.setRideState(RideStates.ONGOING);
+
 					ride = rideRepo.save(ride);
 
 					CabStatus cabStatus = ride.getCabStatus();
@@ -165,24 +165,26 @@ public class RideActionsService {
 
 					cabStatusRepo.save(cabStatus);
 
+					Logger.log("requestRide: Ride started, CabID: " + selectedCab.getCabID() + ", RideID: " + rideID);
 					return rideID;
 				} else {
-					Logger.log("Ride id : " + rideID + " was rejected by Cab Service for Cab ID : "
+					Logger.log("requestRide: Ride id : " + rideID + " was rejected by Cab Service for Cab ID : "
 							+ selectedCab.getCabID());
 				}
 			} else {
 				// if deduction failed send ride cancelled to cab service
-				Logger.log("Amount deduction from wallet failed for user : " + custID);
+				Logger.log("requestRide: Amount deduction from wallet failed for user : " + custID);
 				boolean ifRideCancelled = cabServiceRestConsumer.consumeRideCanceled(selectedCab.getCabID(), rideID);
 				if (ifRideCancelled) {
-					Logger.log("Ride cancelled, CabID: " + selectedCab.getCabID() + ", RideID: " + rideID);
+					Logger.log("requestRide: Ride cancelled, CabID: " + selectedCab.getCabID() + ", RideID: " + rideID);
 					rideRepo.delete(ride);
 				}
 			}
 
 		}
-
-		System.out.println("LOG : Not enough rides available (less than 3 rides)");
+		
+		rideRepo.delete(ride);
+		Logger.logErr("requestRide: Not enough rides available (less than 3 rides)");
 		return -1;
 
 	}
@@ -195,6 +197,7 @@ public class RideActionsService {
 
 }
 
+// Comparator for comparing two CabStatus objects according to distance
 class CabStatusComparatorByCurPos implements Comparator<CabStatus> {
 	long srcLoc;
 
