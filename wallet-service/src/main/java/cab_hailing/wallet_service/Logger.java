@@ -1,4 +1,4 @@
-package cab_hailing.cab_service;
+package cab_hailing.wallet_service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,5 +19,4 @@ public class Logger {
 		System.out.println("\n\n\n-----------------RESET CALLED--------------------\n");
 		log(logString);
 	}
-
 }

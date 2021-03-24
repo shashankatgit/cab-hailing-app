@@ -183,6 +183,9 @@ public class CabActionsService {
 	// Not transactional
 	public void reset() {
 		List<CabStatus> cabStausList = new ArrayList<>();
+		
+		Logger.logReset("Received reset request");
+		
 		cabStausList = cabStatusRepo.findAllByMinorState(CabMinorStates.GIVING_RIDE);
 
 		for (CabStatus cabStatus : cabStausList) {
@@ -194,9 +197,9 @@ public class CabActionsService {
 				
 				boolean ifRideEnded = cabServiceRestConsumer.consumeRideEnded(cabID, rideID);
 				if (ifRideEnded) {
-					Logger.log("Ride ended successfully with CabID: " + cabID + "and rideID: " + rideID);
+					Logger.log("Reset : Ride ended successfully with CabID: " + cabID + "and rideID: " + rideID);
 				} else {
-					Logger.log("Could not end ride with CabID: " + cabID + "and rideID: " + rideID);
+					Logger.log("Reset : Could not end ride with CabID: " + cabID + "and rideID: " + rideID);
 				}
 			}
 		}
@@ -208,11 +211,13 @@ public class CabActionsService {
 
 			boolean ifSignedOut = cabServiceRestConsumer.consumeSignOut(cabID);
 			if (ifSignedOut) {
-				Logger.log("Cab signed out successfully with CabID: " + cabID);
+				Logger.log("Reset : Cab signed out successfully with CabID: " + cabID);
 			} else {
-				Logger.log("Could not sign out cab with CabID: " + cabID);
+				Logger.log("Reset : Could not sign out cab with CabID: " + cabID);
 			}
 		}
+		
+		Logger.log("Reset request completed");
 	}
 
 }

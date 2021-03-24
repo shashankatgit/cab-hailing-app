@@ -45,7 +45,7 @@ public class RideActionsService {
 	 */
 	@Transactional
 	public boolean rideEnded(long rideId) {
-
+		Logger.log("Received rideEnded request for ride id : " + rideId);
 		// Check if ride id is valid
 		Ride ride = rideRepo.findById(rideId).orElse(null);
 		if (ride != null) {
@@ -60,10 +60,19 @@ public class RideActionsService {
 
 				rideRepo.save(ride);
 				cabStatusRepo.save(cabStatus);
+				
+				Logger.log("Ride ended successfully for ride id : " + rideId);
 				return true;
 			}
+			else {
+				Logger.log("Ride id : "+rideId+" is not in ongoing state, so return false");
+			}
+		}
+		else {
+			Logger.log("Couldn't find ride id : " + rideId + ", so return false");
 		}
 
+		
 		return false;
 	}
 

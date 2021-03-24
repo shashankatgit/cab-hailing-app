@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cab_hailing.cab_service.Logger;
 import cab_hailing.cab_service.service.CabActionsService;
 import cab_hailing.cab_service.service.RideActionsService;
 
@@ -54,6 +55,12 @@ public class CabActionsController {
 	@GetMapping("numRides")
 	public long numRides(@RequestParam int cabId) {
 		return cabActionsService.numRides(cabId);
+	}
+	
+	@GetMapping("printLogReset")
+	public int printLogReset() {
+		Logger.logReset("Receiving resetting requests from Ride Servie");
+		return 1;
 	}
 
 }

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import cab_hailing.wallet_service.db_init.DBInitializer;
 import cab_hailing.wallet_service.service.WalletActionsService;
 
+import cab_hailing.wallet_service.Logger;
+
 @RestController
 public class WalletActionsController {
 	
@@ -35,7 +37,9 @@ public class WalletActionsController {
 	
 	@GetMapping("reset")
 	public void reset() {
-		dbInitializer.resetAndLoadAllTables();		
+		Logger.logReset("Received reset request");
+		dbInitializer.resetAndLoadAllTables();
+		Logger.log("Reset : All tables reloaded");
 	}
 	
 }
