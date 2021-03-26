@@ -71,7 +71,7 @@ public class DBInitializer {
 					.setParameter(1, cabID)
 					.setParameter(2, CabMajorStates.SIGNED_OUT)
 					.setParameter(3, CabMinorStates.NONE)
-					.setParameter(4, Long.valueOf(0)).executeUpdate();
+					.setParameter(4, Long.valueOf(-1)).executeUpdate();
 		}
 	}
 

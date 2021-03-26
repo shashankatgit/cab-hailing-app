@@ -1,6 +1,6 @@
 package cab_hailing.ride_service.db_init;
 
-import java.io.File; 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,23 +13,23 @@ import cab_hailing.ride_service.Logger;
 
 @Component
 public class DBInitFileReader {
-	
+
 	@Value("${db.init_file_dir}")
 	public String fileDirectory;
-	
+
 	public List<Long> cabIDList = new ArrayList<Long>();
 	public List<Long> custIDList = new ArrayList<Long>();
 	public Long walletBalance;
-	
+
 	public void clearReadData() {
 		this.cabIDList.clear();
 		this.custIDList.clear();
-		this.walletBalance=null;
+		this.walletBalance = null;
 	}
-	
+
 	public void readInitFile() throws IOException {
 		clearReadData();
-		
+
 		File file = new File(fileDirectory + "IDs.txt");
 		Scanner fileReader = new Scanner(file);
 
@@ -69,7 +69,7 @@ public class DBInitFileReader {
 			walletBalance = Long.parseLong(data);
 		}
 
-		Logger.log("Wallet Balance : "+walletBalance);
+		Logger.log("Wallet Balance : " + walletBalance);
 
 		// -----------------------------------------------------
 

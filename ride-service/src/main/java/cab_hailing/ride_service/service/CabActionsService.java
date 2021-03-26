@@ -139,14 +139,14 @@ public class CabActionsService {
 
 			if (cabMajorState != null) {
 				if (cabMajorState.equals(CabMajorStates.SIGNED_OUT)) {
-					cabStateStr = "SIGNED_OUT";
+					cabStateStr = "signed-out";
 				} else if (cabMajorState.equals(CabMajorStates.SIGNED_IN)) {
 					if (cabMinorState.equals(CabMinorStates.AVAILABLE)) {
-						cabStateStr = "AVAILABLE";
+						cabStateStr = "available";
 					} else if (cabMinorState.equals(CabMinorStates.COMMITTED)) {
-						cabStateStr = "COMMITTED";
+						cabStateStr = "committed";
 					} else if (cabMinorState.equals(CabMinorStates.GIVING_RIDE)) {
-						cabStateStr = "GIVING_RIDE";
+						cabStateStr = "giving-ride";
 
 					} else {
 						cabStateStr = "Error";
@@ -155,7 +155,8 @@ public class CabActionsService {
 				}
 			}
 
-			lastKnownPosStr = cabStatus.getCurrPos().toString();
+			// If cab is signed out, assign -1, else the actual current position
+			lastKnownPosStr = cabMajorState.equals(CabMajorStates.SIGNED_OUT) ? "-1" : cabStatus.getCurrPos().toString();
 
 			finalResponse = cabStateStr + " " + lastKnownPosStr;
 
