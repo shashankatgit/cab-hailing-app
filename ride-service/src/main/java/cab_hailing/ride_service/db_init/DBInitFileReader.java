@@ -9,6 +9,8 @@ import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import cab_hailing.ride_service.Logger;
+
 @Component
 public class DBInitFileReader {
 	
@@ -19,7 +21,15 @@ public class DBInitFileReader {
 	public List<Long> custIDList = new ArrayList<Long>();
 	public Long walletBalance;
 	
+	public void clearReadData() {
+		this.cabIDList.clear();
+		this.custIDList.clear();
+		this.walletBalance=null;
+	}
+	
 	public void readInitFile() throws IOException {
+		clearReadData();
+		
 		File file = new File(fileDirectory + "IDs.txt");
 		Scanner fileReader = new Scanner(file);
 
@@ -59,11 +69,12 @@ public class DBInitFileReader {
 			walletBalance = Long.parseLong(data);
 		}
 
-		System.out.println(walletBalance);
+		Logger.log("Wallet Balance : "+walletBalance);
 
 		// -----------------------------------------------------
 
 		fileReader.close();
+		Logger.log("Data Initialization Complete");
 	}
 
 }

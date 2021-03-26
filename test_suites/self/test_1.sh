@@ -1,6 +1,8 @@
 #!/bin/bash
 
 source ../header.sh 
+tst_wallet_reset
+tst_ride_reset
 
 # tst_cab_signIn 101 1
 

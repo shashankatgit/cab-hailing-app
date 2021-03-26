@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import cab_hailing.ride_service.Logger;
+
 @Component
 public class CabServiceRestConsumer {
 	
@@ -36,12 +38,12 @@ public class CabServiceRestConsumer {
 		
 		Boolean result = restTemplate.getForObject(endpointURL, Boolean.class, requestParams);
 		
-		System.out.println("LOG : Received result from Cab Service for requestRide : "+result);
+		Logger.log("Received result from Cab Service for requestRide : "+result);
 		
 		if(result!=null)
 			return result.booleanValue();
 		
-		System.out.println("LOG : Couldn't get a valid response from Cab Service for requestRide");
+		Logger.logErr("Couldn't get a valid response from Cab Service for requestRide");
 		return false;
 	}
 	
@@ -55,12 +57,12 @@ public class CabServiceRestConsumer {
 		
 		Boolean result = restTemplate.getForObject(endpointURL, Boolean.class, requestParams);
 		
-		System.out.println("LOG : Received result from Cab Service for rideStarted: "+result);
+		Logger.log("Received result from Cab Service for rideStarted: "+result);
 		
 		if(result!=null)
 			return result.booleanValue();
 		
-		System.out.println("LOG : Couldn't get a valid response from Cab Service for rideStarted");
+		Logger.logErr("Couldn't get a valid response from Cab Service for rideStarted");
 		return false;
 	}
 	
@@ -74,12 +76,12 @@ public class CabServiceRestConsumer {
 		
 		Boolean result = restTemplate.getForObject(endpointURL, Boolean.class, requestParams);
 		
-		System.out.println("LOG : Received result from Cab Service for rideCancelled : "+result);
+		Logger.log("Received result from Cab Service for rideCancelled : "+result);
 		
 		if(result!=null)
 			return result.booleanValue();
 		
-		System.out.println("LOG : Couldn't get a valid response from Cab Service for rideCanceled");
+		Logger.log("Couldn't get a valid response from Cab Service for rideCanceled");
 		return false;
 	}
 	
@@ -91,12 +93,12 @@ public class CabServiceRestConsumer {
 		
 		Boolean result = restTemplate.getForObject(endpointURL, Boolean.class, requestParams);
 		
-		System.out.println("LOG : Received result from Cab Service for signOut : "+result);
+		Logger.log("Received result from Cab Service for signOut : "+result);
 		
 		if(result!=null)
 			return result.booleanValue();
 		
-		System.out.println("LOG : Couldn't get a valid response from Cab Service for signOut");
+		Logger.logErr("Couldn't get a valid response from Cab Service for signOut");
 		return false;
 	}
 	
@@ -109,12 +111,12 @@ public class CabServiceRestConsumer {
 		
 		Boolean result = restTemplate.getForObject(endpointURL, Boolean.class, requestParams);
 		
-		System.out.println("LOG : Received result from Cab Service for rideEnded : "+result);
+		Logger.log("Received result from Cab Service for rideEnded : "+result);
 		
 		if(result!=null)
 			return result.booleanValue();
 		
-		System.out.println("LOG : Couldn't get a valid response from Cab Service for rideEnded");
+		Logger.logErr("Couldn't get a valid response from Cab Service for rideEnded");
 		return false;
 	}
 }

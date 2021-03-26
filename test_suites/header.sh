@@ -61,7 +61,7 @@ function tst_ride_requestRide(){
     custId=$2
     sourceLoc=$3
     destinationLoc=$4
-    echo "tst_ride_requestRide : CabId=${cabId}, rideId=${rideId}"
+    echo "tst_ride_requestRide : custId=${custId}, sourceLoc=${sourceLoc}, destinationLoc=${destinationLoc}"
 
     response=$(curl -s "${RIDE_SERVICE_BASE}/requestRide?custId=${custId}&sourceLoc=${sourceLoc}&destinationLoc=${destinationLoc}")
 
