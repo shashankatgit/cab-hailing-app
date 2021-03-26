@@ -22,7 +22,7 @@ public class Cab {
             generator = "CabSeqGen"
     )
     @SequenceGenerator(name = "CabSeqGen",
-                initialValue = 2001, allocationSize = 1
+                initialValue = 1001, allocationSize = 1
     )
 	@Column(name = "cab_id")
 	private long cabID;	

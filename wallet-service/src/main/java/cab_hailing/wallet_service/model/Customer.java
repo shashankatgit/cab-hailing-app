@@ -21,7 +21,7 @@ public class Customer {
             generator = "CustSeqGen"
     )
     @SequenceGenerator(name = "CustSeqGen",
-                initialValue = 1001, allocationSize = 1
+                initialValue = 2001, allocationSize = 1
     )
 	@Column(name = "cust_id")
 	long custID;

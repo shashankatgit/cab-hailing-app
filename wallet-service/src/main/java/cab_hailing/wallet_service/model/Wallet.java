@@ -22,7 +22,7 @@ public class Wallet {
             generator = "WalletSeqGen"
     )
     @SequenceGenerator(name = "WalletSeqGen",
-                initialValue = 1001, allocationSize = 1
+                initialValue = 3001, allocationSize = 1
     )
 	@Column(name = "wallet_id")
 	long walletID;
