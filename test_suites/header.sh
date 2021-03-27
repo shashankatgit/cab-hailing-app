@@ -160,3 +160,9 @@ function tst_wallet_addAmount(){
 function br(){
     echo ""
 }
+
+function quit(){
+    echo "-----------------------------------------"
+    echo "Test Passing Status: $1"
+    exit
+}

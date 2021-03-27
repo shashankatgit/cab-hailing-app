@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import cab_hailing.ride_service.Logger;
+
 @Component
 public class WalletServiceRestConsumer {
 	
@@ -33,12 +35,12 @@ public class WalletServiceRestConsumer {
 		
 		Boolean result = restTemplate.getForObject(endpointURL, Boolean.class, requestParams);
 		
-		System.out.println("LOG : Received result from wallet service for deduct amount: " + result);
+		Logger.log("Received result from wallet service for deduct amount: " + result);
 		
 		if(result!=null)
 			return result.booleanValue();
 		
-		System.out.println("LOG : Couldn't get a valid response from Wallet Service for deductAmount");
+		Logger.logErr("Couldn't get a valid response from Wallet Service for deductAmount");
 		return false;
 	}
 }

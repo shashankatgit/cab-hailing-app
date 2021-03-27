@@ -11,12 +11,17 @@ public class Logger {
 
 	public static void log(String logString) {
 		if (logEnabled) {
-			System.out.println("[" + dateFormatter.get().format(new Date()) + "] LOG : " + logString);
+			System.out.println("[" + dateFormatter.get().format(new Date()) + "] WALLET : LOG : " + logString);
 		}
 	}
 	
 	public static void logReset(String logString) {
 		System.out.println("\n\n\n-----------------RESET CALLED--------------------\n");
+		log(logString);
+	}
+	
+	public static void logErr(String logString) {
+		System.out.println("-----------------UNEXPECTED ERROR--------------------");
 		log(logString);
 	}
 }

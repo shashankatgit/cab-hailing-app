@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cab_hailing.wallet_service.Logger;
 import cab_hailing.wallet_service.model.Customer;
 import cab_hailing.wallet_service.model.Wallet;
 import cab_hailing.wallet_service.repository.CustomerRepository;
@@ -58,8 +59,11 @@ public class WalletActionsService {
 				
 				return true;
 			}
-			else
+			else {
+				Logger.logErr("Insufficient balance, couldn't deduct amount : "+deductionAmount + " for custID : " + custID);
 				return false;
+			}
+				
 		}
 		else
 			return false;
