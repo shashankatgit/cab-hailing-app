@@ -21,44 +21,44 @@ public class CabActionsController {
 	
 	// Will be consumed by RideService
 	@GetMapping("requestRide")
-	public boolean requestRide(@RequestParam int cabId, @RequestParam int rideId, 
-			@RequestParam int sourceLoc, @RequestParam int destinationLoc) {
+	public boolean requestRide(@RequestParam long cabId, @RequestParam long rideId, 
+			@RequestParam long sourceLoc, @RequestParam long destinationLoc) {
 		return rideActionsService.requestRide(cabId, rideId, sourceLoc, destinationLoc);
 	}
 	
 	// Will be consumed by RideService
 	@GetMapping("rideStarted")
-	public boolean rideStarted(@RequestParam int cabId, @RequestParam int rideId) {
+	public boolean rideStarted(@RequestParam long cabId, @RequestParam long rideId) {
 		return rideActionsService.rideStarted(cabId, rideId);
 	}
 	
 	// Will be consumed by RideService
 	@GetMapping("rideCanceled")
-	public boolean rideCancelled(@RequestParam int cabId, @RequestParam int rideId) {
+	public boolean rideCancelled(@RequestParam long cabId, @RequestParam long rideId) {
 		return rideActionsService.rideCancelled(cabId, rideId);
 	}
 	
 	// Will be consumed by Cab Driver
 	@GetMapping("rideEnded")
-	public boolean rideEnded(@RequestParam int cabId, @RequestParam int rideId) {
+	public boolean rideEnded(@RequestParam long cabId, @RequestParam long rideId) {
 		return rideActionsService.rideEnded(cabId, rideId);
 	}
 	
 	// Will be consumed by Cab Driver
 	@GetMapping("signIn")
-	public boolean signIn(@RequestParam int cabId, @RequestParam int initialPos) {
+	public boolean signIn(@RequestParam long cabId, @RequestParam long initialPos) {
 		return cabActionsService.signIn(cabId, initialPos);
 	}
 
 	// Will be consumed by Cab Driver
 	@GetMapping("signOut")
-	public boolean signOut(@RequestParam int cabId) {
+	public boolean signOut(@RequestParam long cabId) {
 		return cabActionsService.signOut(cabId);
 	}
 	
 	// Will be consumed for testing
 	@GetMapping("numRides")
-	public long numRides(@RequestParam int cabId) {
+	public long numRides(@RequestParam long cabId) {
 		return cabActionsService.numRides(cabId);
 	}
 	

@@ -28,27 +28,27 @@ public class RideActionsController {
 	RideActionsService rideActionsService;
 
 	@GetMapping("rideEnded")
-	public boolean rideEnded(@RequestParam int rideId) {
+	public boolean rideEnded(@RequestParam long rideId) {
 		return rideActionsService.rideEnded(rideId);
 	}
 
 	@GetMapping("cabSignsIn")
-	public boolean cabSignsIn(@RequestParam int cabId, @RequestParam int initialPos) {
+	public boolean cabSignsIn(@RequestParam long cabId, @RequestParam long initialPos) {
 		return cabActionsService.cabSignsIn(cabId, initialPos);
 	}
 
 	@GetMapping("cabSignsOut")
-	public boolean cabSignsOut(@RequestParam int cabId) {
+	public boolean cabSignsOut(@RequestParam long cabId) {
 		return cabActionsService.cabSignsOut(cabId);
 	}
 
 	@GetMapping("requestRide")
-	public long requestRide(@RequestParam int custId, @RequestParam int sourceLoc, @RequestParam int destinationLoc) {
+	public long requestRide(@RequestParam long custId, @RequestParam long sourceLoc, @RequestParam long destinationLoc) {
 		return rideActionsService.requestRide(custId, sourceLoc, destinationLoc);
 	}
 
 	@GetMapping("getCabStatus")
-	public String getCabStatus(@RequestParam int cabId) {
+	public String getCabStatus(@RequestParam long cabId) {
 		return cabActionsService.getCabStatus(cabId);
 	}
 

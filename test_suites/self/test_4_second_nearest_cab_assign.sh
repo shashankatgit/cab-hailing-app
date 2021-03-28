@@ -14,7 +14,7 @@ rideId=-1
 nRides=-1
 cabStatus=""
 
-# 5 cabs sign in 
+# 2 cabs sign in 
 tst_cab_signIn 101 10
 tst_cab_signIn 102 50
 br
