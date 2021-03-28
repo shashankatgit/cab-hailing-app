@@ -45,6 +45,12 @@ public class WalletActionsService {
 	
 	@Transactional
 	public boolean deductAmount(long custID, long deductionAmount) {
+		
+		if (deductionAmount < 0) {
+			Logger.logErr("deductionAmount : " + deductionAmount + " is invalid so return false for deductAmount");
+			return false;
+		}
+		
 		Customer customer = custRep.findById(custID).orElse(new Customer());
 		Wallet custWallet = customer.getWallet();
 		
@@ -71,6 +77,11 @@ public class WalletActionsService {
 	
 	@Transactional
 	public boolean addAmount(long custID, long additionAmount) {
+		if (additionAmount < 0) {
+			Logger.logErr("additionAmount : " + additionAmount + " is invalid so return false for addAmount");
+			return false;
+		}
+		
 		Customer customer = custRep.findById(custID).orElse(new Customer());
 		Wallet custWallet = customer.getWallet();
 		

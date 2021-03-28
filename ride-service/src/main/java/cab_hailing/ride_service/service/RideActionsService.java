@@ -100,6 +100,17 @@ public class RideActionsService {
 	 */
 	@Transactional
 	public long requestRide(long custID, long sourceLoc, long destinationLoc) {
+		
+		if (sourceLoc <= 0) {
+			Logger.logErr("sourceLoc : " + sourceLoc + " is invalid so return false for requestRide");
+			return -1;
+		}
+		
+		if (destinationLoc <= 0) {
+			Logger.logErr("destinationLoc : " + destinationLoc + " is invalid so return false for requestRide");
+			return -1;
+		}
+		
 		// Generate a globally unique rideId
 		Ride ride = new Ride();
 		ride.setSrcPos(sourceLoc);

@@ -46,6 +46,11 @@ public class CabActionsService {
 			Logger.logErr("Cab id : " + cabID + " is invalid so return false for signIn");
 			return false;
 		}
+		
+		if (initialPos <= 0) {
+			Logger.logErr("Initial Pos : " + initialPos + " is invalid so return false for signIn");
+			return false;
+		}
 
 		/*
 		 * Get corresponding record from cab_status. If cab status record not found,
