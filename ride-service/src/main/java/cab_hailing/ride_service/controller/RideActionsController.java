@@ -43,7 +43,7 @@ public class RideActionsController {
 	}
 
 	@GetMapping("requestRide")
-	public long requestRide(@RequestParam long custId, @RequestParam long sourceLoc, @RequestParam long destinationLoc) {
+	public String requestRide(@RequestParam long custId, @RequestParam long sourceLoc, @RequestParam long destinationLoc) {
 		return rideActionsService.requestRide(custId, sourceLoc, destinationLoc);
 	}
 

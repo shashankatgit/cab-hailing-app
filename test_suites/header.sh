@@ -65,8 +65,8 @@ function tst_ride_requestRide(){
 
     response=$(curl -s "${RIDE_SERVICE_BASE}/requestRide?custId=${custId}&sourceLoc=${sourceLoc}&destinationLoc=${destinationLoc}")
 
-    echo "tst_ride_requestRide : Response Ride ID : ${response}"
-    eval "$1=$response"
+    echo "tst_ride_requestRide : Response: ${response}"
+    eval "$1=\"$response\""
 }
 
 function tst_cab_numRides(){

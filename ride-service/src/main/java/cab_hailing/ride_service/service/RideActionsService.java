@@ -99,16 +99,16 @@ public class RideActionsService {
 	 * 
 	 */
 	@Transactional
-	public long requestRide(long custID, long sourceLoc, long destinationLoc) {
+	public String requestRide(long custID, long sourceLoc, long destinationLoc) {
 		
-		if (sourceLoc <= 0) {
+		if (sourceLoc < 0) {
 			Logger.logErr("sourceLoc : " + sourceLoc + " is invalid so return false for requestRide");
-			return -1;
+			return "-1";
 		}
 		
-		if (destinationLoc <= 0) {
+		if (destinationLoc < 0) {
 			Logger.logErr("destinationLoc : " + destinationLoc + " is invalid so return false for requestRide");
-			return -1;
+			return "-1";
 		}
 		
 		// Generate a globally unique rideId
@@ -146,7 +146,7 @@ public class RideActionsService {
 			nTries++;
 			if (nTries >= 3) {
 				Logger.logErr("requestRide: Couldn't find any ride after 3 attempts");
-				return -1;
+				return "-1";
 			}
 		}
 
@@ -177,7 +177,10 @@ public class RideActionsService {
 					cabStatusRepo.save(cabStatus);
 
 					Logger.log("requestRide: Ride started, CabID: " + selectedCab.getCabID() + ", RideID: " + rideID);
-					return rideID;
+					
+					//Return a tuple of [RideID] [CabID] [Fare]
+					
+					return rideID + " " + cabStatus.getCabID() + " " + fare;
 				} else {
 					Logger.log("requestRide: Ride id : " + rideID + " was rejected by Cab Service for Cab ID : "
 							+ selectedCab.getCabID());
@@ -196,7 +199,7 @@ public class RideActionsService {
 		
 		rideRepo.delete(ride);
 		Logger.logErr("requestRide: Not enough rides available (less than 3 rides)");
-		return -1;
+		return "-1";
 
 	}
 

@@ -47,7 +47,7 @@ public class CabActionsService {
 			return false;
 		}
 		
-		if (initialPos <= 0) {
+		if (initialPos < 0) {
 			Logger.logErr("Initial Pos : " + initialPos + " is invalid so return false for signIn");
 			return false;
 		}

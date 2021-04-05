@@ -35,7 +35,7 @@ then
     echo "Wallet operation 1 shouldn't be possible"
     quit "no"
 fi 
-brt
+br
 tst_wallet_addAmount 201 -20
 if [ $? != 0 ];
 then
