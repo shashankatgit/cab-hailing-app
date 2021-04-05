@@ -1,16 +1,15 @@
 #! /bin/bash
 source ../../header.sh 
-
 rm -f sh2out
 
 #Step 1 : cab 102 signs in
-tst_cab_signIn 102 100
+tst_cab_signIn 102 50
 br
 
 # Step 2: customer 202 requests a cab
 rideDetails="-1"
 
-tst_ride_requestRide rideDetails 201 0 100
+tst_ride_requestRide rideDetails 202 0 200
 echo "$rideDetails"
 
 rideId=$(echo $rideDetails | cut -d' ' -f 1)

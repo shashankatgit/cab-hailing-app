@@ -1,5 +1,9 @@
 #!/bin/bash
 
+GREEN=$'\e[0;32m'
+RED=$'\e[0;31m'
+NC=$'\e[0m'
+
 BASEURL="http://localhost"
 CAB_SERVICE_PORT="8080"
 RIDE_SERVICE_PORT="8081"

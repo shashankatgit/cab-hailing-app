@@ -1,9 +1,7 @@
-#! /bin/bash
 source ../../header.sh 
 
 # Scenario Description
-# Check if the current total balance in all wallets is equal to 
-# original total balance in all wallets (which is a constant) MINUS totalFare.
+# Check if appropriate number of ride requests are accepted
 
 # every test case should begin with these two steps
 tst_wallet_reset
@@ -12,10 +10,11 @@ tst_ride_reset
 br
 
 # Run two test scripts in parallel
-x-terminal-emulator -e "bash -c $(pwd)/script1.sh;bash" 2>/dev/null &
-x-terminal-emulator -e "bash -c $(pwd)/script2.sh;bash" 2>/dev/null &
-x-terminal-emulator -e "bash -c $(pwd)/script3.sh;bash" 2>/dev/null &
-sleep 5
+# x-terminal-emulator -e "bash -c $(pwd)/script11.sh;bash" 2>/dev/null &
+# x-terminal-emulator -e "bash -c $(pwd)/script12.sh;bash" 2>/dev/null &
+# sleep 2
+./script11.sh &
+./script12.sh
 
 totalFare=0
 for i in $(cat sh1out sh2out);

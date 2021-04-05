@@ -1,16 +1,15 @@
 #! /bin/bash
 source ../../header.sh 
-
 rm -f sh1out
 
 #Step 1 : cab 101 signs in
-tst_cab_signIn 101 100
+tst_cab_signIn 101 0
 br
 
 # Step 2: customer 201 requests a cab
 rideDetails="-1"
 
-tst_ride_requestRide rideDetails 201 110 120
+tst_ride_requestRide rideDetails 201 50 100
 echo "$rideDetails"
 
 rideId=$(echo $rideDetails | cut -d' ' -f 1)
@@ -24,4 +23,3 @@ else
     echo "Ride by customer 201 started"
     echo $fare >> sh1out
 fi
-
