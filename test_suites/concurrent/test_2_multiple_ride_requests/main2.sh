@@ -10,40 +10,24 @@ tst_ride_reset
 br
 
 # Run two test scripts in parallel
-# x-terminal-emulator -e "bash -c $(pwd)/script11.sh;bash" 2>/dev/null &
-# x-terminal-emulator -e "bash -c $(pwd)/script12.sh;bash" 2>/dev/null &
+# x-terminal-emulator -e "bash -c $(pwd)/script21.sh;bash" 2>/dev/null &
+# x-terminal-emulator -e "bash -c $(pwd)/script22.sh;bash" 2>/dev/null &
 # sleep 2
-./script11.sh &
-./script12.sh
+./script21.sh &
+./script22.sh
+sleep 2
 
-totalFare=0
+totalRides=0
 for i in $(cat sh1out sh2out);
 do
-  totalFare=$(expr $totalFare + $i)
+  totalRides=$(expr $totalRides + $i)
 done
-echo "Total Fare: $totalFare"
+echo "Total Rides: $totalRides"
 br
 
-totalWalletBalance=0
-for custID in 201 202 203
-do
-  balance=-1
-  tst_wallet_getBalance balance $custID
-  echo "Balance for Customer $custID : $balance"
-  totalWalletBalance=$(expr $totalWalletBalance + $balance)
-  br
-done
-echo "Total Wallet Balance: $totalWalletBalance"
-
-initBalance=30000
-actualBalance=$(expr $totalFare + $totalWalletBalance)
-
-echo "$initBalance"
-echo "$actualBalance"
-
-if [ "$actualBalance" != "$initBalance" ];
+if [ "$totalRides" != "4" ];
 then
-    echo "Inconsistent wallet balance."
+    echo "Inconsistent number of rides."
     quit "no"
 fi
 
