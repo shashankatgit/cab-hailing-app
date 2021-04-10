@@ -11,7 +11,8 @@ public class Logger {
 
 	public static void log(String logString) {
 		if (logEnabled) {
-			System.out.println("[" + dateFormatter.get().format(new Date()) + "] WALLET : LOG : " + logString);
+			Long threadID = Thread.currentThread().getId();
+			System.out.println("[" +threadID.toString() + "][" + dateFormatter.get().format(new Date()) + "] WALLET : LOG : " + logString);
 		}
 	}
 	

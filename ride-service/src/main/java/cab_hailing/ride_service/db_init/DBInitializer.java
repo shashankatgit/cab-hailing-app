@@ -61,17 +61,19 @@ public class DBInitializer {
 		initAllTables();
 	}	
 	
-	
 		
 	@Transactional
 	private void initCabStatusTable() throws IOException {
 		for (Long cabID : dbInitFileReader.cabIDList) {
 			entityManager.createNativeQuery(
-					"INSERT INTO CAB_STATUS(CAB_ID,MAJOR_STATE ,MINOR_STATE, CURR_POS) VALUES (?,?,?,?)")
+					"INSERT INTO CAB_STATUS(CAB_ID,MAJOR_STATE ,MINOR_STATE, CURR_POS) SELECT ?,?,?,? "
+					+ "FROM DUAL WHERE NOT EXISTS (SELECT * FROM CAB_STATUS WHERE CAB_ID=?)")
 					.setParameter(1, cabID)
 					.setParameter(2, CabMajorStates.SIGNED_OUT)
 					.setParameter(3, CabMinorStates.NONE)
-					.setParameter(4, Long.valueOf(-1)).executeUpdate();
+					.setParameter(4, Long.valueOf(-1))
+					.setParameter(5, cabID)
+					.executeUpdate();
 		}
 	}
 

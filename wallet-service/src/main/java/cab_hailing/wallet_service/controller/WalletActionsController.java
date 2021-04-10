@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cab_hailing.wallet_service.Logger;
 import cab_hailing.wallet_service.db_init.DBInitializer;
 import cab_hailing.wallet_service.service.WalletActionsService;
 
-import cab_hailing.wallet_service.Logger;
 
 @RestController
 public class WalletActionsController {

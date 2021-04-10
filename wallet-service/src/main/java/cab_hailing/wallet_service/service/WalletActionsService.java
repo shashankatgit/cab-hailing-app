@@ -1,7 +1,13 @@
 package cab_hailing.wallet_service.service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cab_hailing.wallet_service.Logger;
@@ -32,36 +38,46 @@ public class WalletActionsService {
 	@Autowired
 	WalletRepository walletRep;
 	
+	@PersistenceContext
+	EntityManager em;
+	
 	@Transactional
 	public long getBalance(long custID) {
-		Customer customer = custRep.findById(custID).orElse(new Customer());
+		
+		Logger.log("getBalance : Request received for custID:" + custID);
+		
+		Customer customer = em.find(Customer.class, custID, LockModeType.PESSIMISTIC_READ);
 		Wallet custWallet = customer.getWallet();
 		
-		if(custWallet != null )
+		if(custWallet != null ) {
+			Logger.log("getBalance : Request success for custID:" + custID + " with balance: "+custWallet.getBalanceAmount());
 			return custWallet.getBalanceAmount();
+		}
 		else
 			return -1;
 	}
 	
 	@Transactional
 	public boolean deductAmount(long custID, long deductionAmount) {
+		Logger.log("deductAmount : Request received for custID:" + custID + ", dedAmount:"+deductionAmount );
 		
 		if (deductionAmount < 0) {
 			Logger.logErr("deductionAmount : " + deductionAmount + " is invalid so return false for deductAmount");
 			return false;
 		}
 		
-		Customer customer = custRep.findById(custID).orElse(new Customer());
+		Customer customer = em.find(Customer.class, custID, LockModeType.PESSIMISTIC_WRITE);
 		Wallet custWallet = customer.getWallet();
 		
 		if(custWallet != null ) {
 			long availBalance = custWallet.getBalanceAmount();
 			
-			
-			
 			if(availBalance >= deductionAmount) {
 				custWallet.setBalanceAmount(availBalance - deductionAmount);
-				walletRep.save(custWallet);
+				custWallet = walletRep.save(custWallet);
+				Logger.log("deductAmount : Success for custID:" + custID + ", dedAmount:"+deductionAmount 
+						+ ", curBalance:" + custWallet.getBalanceAmount());
+				
 				
 				return true;
 			}
@@ -70,6 +86,7 @@ public class WalletActionsService {
 				return false;
 			}
 				
+			
 		}
 		else
 			return false;
@@ -77,20 +94,25 @@ public class WalletActionsService {
 	
 	@Transactional
 	public boolean addAmount(long custID, long additionAmount) {
+		
+		Logger.log("addAmount : Request received for custID:" + custID + ", additionAmount:"+additionAmount );
+		
 		if (additionAmount < 0) {
 			Logger.logErr("additionAmount : " + additionAmount + " is invalid so return false for addAmount");
 			return false;
 		}
 		
-		Customer customer = custRep.findById(custID).orElse(new Customer());
+		Customer customer = em.find(Customer.class, custID, LockModeType.PESSIMISTIC_WRITE);
 		Wallet custWallet = customer.getWallet();
 		
 		if(custWallet != null ) {
 			long availBalance = custWallet.getBalanceAmount();
 			
 			custWallet.setBalanceAmount(availBalance + additionAmount);
-			walletRep.save(custWallet);
+			custWallet = walletRep.save(custWallet);
 			
+			Logger.log("addAmount : Success for custID:" + custID + ", additionAmount:"+additionAmount
+					+ ", curBalance:" + custWallet.getBalanceAmount());
 			return true;
 
 		}

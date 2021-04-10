@@ -1,9 +1,21 @@
 package cab_hailing.wallet_service.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import javax.persistence.LockModeType;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import cab_hailing.wallet_service.model.Customer;
 import cab_hailing.wallet_service.model.Wallet;
 
-public interface WalletRepository extends JpaRepository<Wallet, Long> {
+@Repository
+public interface WalletRepository extends CrudRepository<Wallet, Long> {
 	
+	public Wallet findWalletByCustomer(Customer customer);
+	
+
 }

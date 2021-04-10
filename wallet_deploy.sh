@@ -13,6 +13,7 @@ cd ..
 docker run -p 8082:8082 \
 	--rm \
 	--name walletservice-container \
-	-v $(pwd)/init:/root/init \
 	--network="host" \
 	pods/wallet-service &
+	
+# -v $(pwd)/init:/root/init \
