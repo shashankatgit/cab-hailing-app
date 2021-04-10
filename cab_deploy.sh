@@ -13,7 +13,6 @@ cd ..
 docker run -p 8080:8080 \
 	--rm \
 	--name cabservice-container \
-	-v $(pwd)/init:/root/init \
 	--network="host" \
 	pods/cab-service &
 

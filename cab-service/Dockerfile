@@ -5,6 +5,7 @@ RUN mkdir -p /root/app
 RUN mkdir -p /root/init
 
 COPY ${JAR_FILE} /root/app/cab_service.jar
+COPY /init/IDs.txt /root/init/
 
 WORKDIR /root/app
 ENTRYPOINT ["java","-jar","cab_service.jar"]
