@@ -1,19 +1,29 @@
 #!/bin/bash
 
+GREEN=$'\e[0;32m'
+RED=$'\e[0;31m'
+NC=$'\e[0m'
+
 var1=""
 
-echo "Ensure that minikube (minikube --driver=docker start) is running (Press a key)"
+echo "${RED}Ensure that minikube (minikube --driver=docker start) is running (Press a key)${NC}"
 read var1
 
 echo "Running minikube docker-env"
 eval $(minikube docker-env)
+
+echo "______________________________________________________"
+
+echo "Minikube Tunnel"
+echo "${RED}Ensure that minikube tunnel is running and press enter.${NC}"
+read var1
 
 
 echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "Do you want to do Maven Build ? (y/n)"
+echo "${RED}Do you want to do Maven Build ? (y/n)${NC}"
 read var1
 if [ "$var1" == "y" ]; then
 	./maven_build.sh
@@ -23,14 +33,16 @@ echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "Building docker images for minikube (y/n)"
-echo "______________________________________________________"
+echo "${RED}Would you like to build docker images? (y/n)${NC}"
 read var1
+
 if [ "$var1" == "y" ]; then
 	docker build -q --tag pods/db-service db-service 
 	docker build -q --tag pods/cab-service cab-service 
 	docker build -q --tag pods/ride-service ride-service 
 	docker build -q --tag pods/wallet-service wallet-service 
+else
+	echo "Skipping building images"
 fi
 
 echo "______________________________________________________"
@@ -53,20 +65,23 @@ echo "Creating deployments for minikube"
 echo "______________________________________________________"
 
 
-kubectl apply -f db-service/db.yml 
-kubectl apply -f cab-service/cab.yml 
-kubectl apply -f wallet-service/wallet.yml 
-sleep 5
-kubectl apply -f ride-service/ride.yml 
+minikube kubectl -- apply -f db-service/db.yml 
+minikube kubectl -- apply -f cab-service/cab.yml 
+minikube kubectl -- apply -f wallet-service/wallet.yml 
+echo "${RED}Please ensure that external db-service has started before running ride-service. Press enter when ready.${NC}"
+read var1
+minikube kubectl -- apply -f ride-service/ride.yml 
 
 
 echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "Deleting existing services for minikube (y/n)"
-echo "______________________________________________________"
+
+echo "${RED}Would you like to delete existing services? (y/n)${NC}"
 read var1
+echo "______________________________________________________"
+
 if [ "$var1" == "y" ]; then
 	minikube kubectl delete service db-console-service
 	minikube kubectl delete service db-tcp-service
@@ -101,9 +116,11 @@ minikube kubectl -- expose deployment wallet-service \
 
 echo "______________________________________________________"
 
+
+
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "View deployments for minikube"
+echo "View deployments for minikube : minikube kubectl -- get deployments"
 echo "______________________________________________________"
 
 minikube kubectl -- get deployments
@@ -112,7 +129,7 @@ echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "View pods for minikube"
+echo "View pods for minikube : minikube kubectl -- get pods"
 echo "______________________________________________________"
 
 minikube kubectl -- get pods
@@ -121,12 +138,13 @@ echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "View services for minikube"
+echo "View services for minikube : kubectl -- get services"
 echo "______________________________________________________"
 
-kubectl get services
+minikube kubectl -- get services
 
 echo "______________________________________________________"
+
 
 # -------------------------------------------------------------------------------------------------------------------
 
@@ -135,6 +153,9 @@ echo "______________________________________________________"
 # minikube kubectl -- scale --replicas=1 deployments/cab-service deployments/wallet-service
 # minikube kubectl -- scale --replicas=3 deployments/ride-service
 
+# View logs
+# minikube kubectl -- get pods
+# minikube kubectl -- logs ...
 
 # docker container stop $(docker container ls -aq)
 # docker container rm $(docker container ls -aq)
