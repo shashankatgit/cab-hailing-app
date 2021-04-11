@@ -14,7 +14,7 @@ startBalance=-1
 tst_wallet_getBalance startBalance 201
 
 ./script51.sh &
-./script52.sh &
+./script52.sh 
 
 tst_global_sleep_low
 

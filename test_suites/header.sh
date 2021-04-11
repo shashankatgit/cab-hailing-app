@@ -185,13 +185,16 @@ function quit(){
 }
 
 function tst_global_sleep_low(){
+    echo "Sleeping for 2 seconds"
     sleep 2
 }
 
 function tst_global_sleep_med(){
+    echo "Sleeping for 5 seconds"
     sleep 5
 }
 
 function tst_global_sleep_high(){
+    echo "Sleeping for 10 seconds"
     sleep 10
 }

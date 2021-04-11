@@ -4,25 +4,31 @@ source ../header.sh
 var=""
 
 br
-echo "------------ Press any key to start Test Case 1 -------"
+cd test_1_*
+echo "------------ Press any key to start Test 1 : ${PWD##*/} -------"
 read var1
-cd test_1_wallet_balance_check
 ./main1.sh
 
 br
-echo "------------ Press any key to start Test Case 2 -------"
+cd ../test_2_*
+echo "------------ Press any key to start Test 2 : ${PWD##*/} -------"
 read var1
-cd ../test_2_multiple_ride_requests
 ./main2.sh
 
 br
-echo "------------ Press any key to start Test Case 3 -------"
+cd ../test_3_*
+echo "------------ Press any key to start Test 3 : ${PWD##*/} -------"
 read var1
-cd ../test_3_signin
 ./main3.sh
 
 br
-echo "------------ Press any key to start Test Case 4 -------"
+cd ../test_4_*
+echo "------------ Press any key to start Test 4 : ${PWD##*/} -------"
 read var1
-cd ../test_4_multiple_ride_to_same_cab
 ./main4.sh
+
+br
+cd ../test_5_*
+echo "------------ Press any key to start Test 5 : ${PWD##*/} -------"
+read var1
+./main5.sh
