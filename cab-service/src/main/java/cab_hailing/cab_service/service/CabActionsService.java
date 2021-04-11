@@ -1,5 +1,9 @@
 package cab_hailing.cab_service.service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,9 @@ public class CabActionsService {
 	@Autowired
 	RideServiceRestConsumer rideServiceRestConsumer;
 
+	@PersistenceContext
+	EntityManager em;
+
 	// ---------------------------------------------------------------------------------------------
 
 	/*
@@ -41,7 +48,8 @@ public class CabActionsService {
 	public boolean signIn(long cabID, long initialPos) {
 		Logger.log("Received sign in request for cab id : " + cabID);
 		// Check if cabID is valid
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_WRITE); 
+		
 		if (cab == null) {
 			Logger.logErr("Cab id : " + cabID + " is invalid so return false for signIn");
 			return false;
@@ -102,7 +110,7 @@ public class CabActionsService {
 		Logger.log("Received sign out request for cab id : " + cabID);
 
 		// Check if cabID is valid
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_WRITE); 
 		if (cab == null) {
 			Logger.logErr("Cab id : " + cabID + " is invalid so return false for signOut");
 			return false;
@@ -159,7 +167,7 @@ public class CabActionsService {
 	public long numRides(long cabID) {
 		Logger.log("Received request numRides for Cab id : " + cabID);
 		
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_READ); 
 		if (cab == null) {
 			Logger.logErr("Cab id : " + cabID + " is not valid so return -1");
 			return -1;

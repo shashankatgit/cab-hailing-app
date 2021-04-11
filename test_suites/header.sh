@@ -13,9 +13,9 @@ NC=$'\e[0m'
 # RIDE_SERVICE_BASE="${BASEURL}:${RIDE_SERVICE_PORT}"
 # WALLET_SERVICE_BASE="${BASEURL}:${WALLET_SERVICE_PORT}"
 
-CAB_SERVICE_BASE="10.98.252.37:8080"
-RIDE_SERVICE_BASE="10.106.15.166:8080"
-WALLET_SERVICE_BASE="10.108.239.182:8080"
+CAB_SERVICE_BASE=$(minikube service cab-service --url)
+RIDE_SERVICE_BASE=$(minikube service ride-service --url)
+WALLET_SERVICE_BASE=$(minikube service wallet-service --url)
 
 
 function test_print(){
@@ -172,6 +172,11 @@ function br(){
 
 function quit(){
     echo "-----------------------------------------"
-    echo "Test Passing Status: $1"
+    if [[ "$1" = *"no"* ]] ; then
+        echo "${RED} Test Passing Status: NO ${NC}"
+    else
+        echo "${GREEN} Test Passing Status: YES ${NC}"
+    fi
+
     exit
 }

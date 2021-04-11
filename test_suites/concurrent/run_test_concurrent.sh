@@ -20,3 +20,9 @@ echo "------------ Press any key to start Test Case 3 -------"
 read var1
 cd ../test_3_signin
 ./main3.sh
+
+br
+echo "------------ Press any key to start Test Case 4 -------"
+read var1
+cd ../test_4_multiple_ride_to_same_cab
+./main4.sh

@@ -28,7 +28,7 @@ done
 echo "Total Number of sign in requests accepted: $totalSignIn"
 br
 
-if [ "$totalSignIn" != "1" ];
+if [ "$totalSignIn" -ne "1" ];
 then
     echo "Cab signed in multiple times."
     quit "no"

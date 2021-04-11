@@ -25,7 +25,7 @@ done
 echo "Total Rides: $totalRides"
 br
 
-if [ "$totalRides" != "4" ];
+if [ "$totalRides" -ne "4" ];
 then
     echo "Inconsistent number of rides."
     quit "no"

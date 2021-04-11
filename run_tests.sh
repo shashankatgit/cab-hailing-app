@@ -12,3 +12,8 @@ do
 	bash $FILE; 
 	t_count=$((t_count+1))
 done
+
+
+cd ../concurrent
+echo "__________________ Starting Concurrent Test Cases __________________"
+./run_test_concurrent.sh
