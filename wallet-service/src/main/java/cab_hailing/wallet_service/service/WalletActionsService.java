@@ -6,6 +6,8 @@ import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cab_hailing.wallet_service.Logger;
@@ -39,6 +41,8 @@ public class WalletActionsService {
 		Logger.log("getBalance : Request received for custID:" + custID);
 
 		Customer customer = em.find(Customer.class, custID, LockModeType.PESSIMISTIC_READ);
+//		Customer customer = custRep.findById(custID).orElse(new Customer());
+		
 		Wallet custWallet = customer.getWallet();
 
 		if (custWallet != null) {
@@ -60,6 +64,8 @@ public class WalletActionsService {
 		}
 
 		Customer customer = em.find(Customer.class, custID, LockModeType.PESSIMISTIC_WRITE);
+//		Customer customer = custRep.findById(custID).orElse(new Customer());
+		
 		Wallet custWallet = customer.getWallet();
 
 		if (custWallet != null) {
@@ -93,6 +99,8 @@ public class WalletActionsService {
 		}
 
 		Customer customer = em.find(Customer.class, custID, LockModeType.PESSIMISTIC_WRITE);
+//		Customer customer = custRep.findById(custID).orElse(new Customer());
+		
 		Wallet custWallet = customer.getWallet();
 
 		if (custWallet != null) {

@@ -17,6 +17,9 @@ CAB_SERVICE_BASE=$(minikube service cab-service --url)
 RIDE_SERVICE_BASE=$(minikube service ride-service --url)
 WALLET_SERVICE_BASE=$(minikube service wallet-service --url)
 
+echo "CAB_SERVICE_BASE: $CAB_SERVICE_BASE"
+echo "RIDE_SERVICE_BASE: $RIDE_SERVICE_BASE"
+echo "WALLET_SERVICE_BASE: $WALLET_SERVICE_BASE"
 
 function test_print(){
     echo "Hello World"
@@ -179,4 +182,16 @@ function quit(){
     fi
 
     exit
+}
+
+function tst_global_sleep_low(){
+    sleep 2
+}
+
+function tst_global_sleep_med(){
+    sleep 5
+}
+
+function tst_global_sleep_high(){
+    sleep 10
 }

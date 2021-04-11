@@ -17,7 +17,7 @@ br
 # sleep 2
 ./script11.sh &
 ./script12.sh
-sleep 2
+tst_global_sleep_med
 
 totalFare=0
 for i in $(cat sh1out sh2out);

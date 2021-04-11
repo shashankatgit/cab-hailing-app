@@ -18,7 +18,7 @@ br
 ./script31.sh &
 ./script32.sh &
 ./script33.sh
-sleep 2
+tst_global_sleep_med
 
 totalSignIn=0
 for i in $(cat sh1out sh2out sh3out);

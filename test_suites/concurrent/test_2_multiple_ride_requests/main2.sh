@@ -15,7 +15,7 @@ br
 # sleep 2
 ./script21.sh &
 ./script22.sh
-sleep 2
+tst_global_sleep_med
 
 totalRides=0
 for i in $(cat sh1out sh2out);

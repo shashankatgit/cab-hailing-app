@@ -138,7 +138,7 @@ echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
-echo "View services for minikube : kubectl -- get services"
+echo "View services for minikube : minikube kubectl -- get services"
 echo "______________________________________________________"
 
 minikube kubectl -- get services

@@ -27,31 +27,37 @@ public class RideActionsController {
 	@Autowired
 	RideActionsService rideActionsService;
 
+	// Consumed by Cab Service
 	@GetMapping("rideEnded")
 	public boolean rideEnded(@RequestParam long rideId) {
 		return rideActionsService.rideEnded(rideId);
 	}
-
+	
+	// Consumed by Cab Service
 	@GetMapping("cabSignsIn")
 	public boolean cabSignsIn(@RequestParam long cabId, @RequestParam long initialPos) {
 		return cabActionsService.cabSignsIn(cabId, initialPos);
 	}
 
+	// Consumed by Cab Service
 	@GetMapping("cabSignsOut")
 	public boolean cabSignsOut(@RequestParam long cabId) {
 		return cabActionsService.cabSignsOut(cabId);
 	}
 
+	// Consumed by user 
 	@GetMapping("requestRide")
 	public String requestRide(@RequestParam long custId, @RequestParam long sourceLoc, @RequestParam long destinationLoc) {
 		return rideActionsService.requestRide(custId, sourceLoc, destinationLoc);
 	}
 
+	// For testing
 	@GetMapping("getCabStatus")
 	public String getCabStatus(@RequestParam long cabId) {
 		return cabActionsService.getCabStatus(cabId);
 	}
-
+	
+	
 	@GetMapping("reset")
 	public void reset() {
 		// hint cab service logger that reset has begun

@@ -1,5 +1,9 @@
 package cab_hailing.cab_service.service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +27,15 @@ public class RideActionsService {
 
 	@Autowired
 	RideServiceRestConsumer rideServiceRestConsumer;
+	
+	@PersistenceContext
+	EntityManager em;
 
 	@Transactional
 	public boolean requestRide(long cabID, long rideID, long sourceLoc, long destinationLoc) {
 		Logger.log("requestRide: Received request for cabID:" + cabID + ", rideID:" + rideID);
 
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_WRITE); 
 		if (cab == null) {
 			Logger.logErr("requestRide: Cab id:" + cabID + " is invalid");
 			return false;
@@ -71,7 +78,7 @@ public class RideActionsService {
 		Logger.log("rideCancelled: Received request for cabID:" + cabID + ", rideID:" + rideID);
 
 		// Check if cab id is valid and in riding state with this rideID
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_WRITE); 
 		if (cab == null) {
 			Logger.logErr("rideCancelled: Cab id:" + cabID + " is invalid");
 			return false;
@@ -110,7 +117,7 @@ public class RideActionsService {
 		Logger.log("rideStarted: Received request for cabID:" + cabID + ", rideID:" + rideID);
 		
 		// Check if cab id is valid and in riding state with this rideID
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_WRITE); 
 		if (cab == null) {
 			Logger.logErr("rideStarted: Cab id:" + cabID + " is invalid");
 			return false;
@@ -149,7 +156,7 @@ public class RideActionsService {
 		Logger.log("Received rideEnded request for cab id : " + cabID + ", ride id : " + rideID);
 
 		// Check if cab id is valid and in riding state with this rideID
-		Cab cab = cabRepo.findById(cabID).orElse(null);
+		Cab cab = em.find(Cab.class, cabID, LockModeType.PESSIMISTIC_WRITE);
 		if (cab == null) {
 			Logger.logErr("Couldn't find entry for cab id : " + cabID);
 			return false;

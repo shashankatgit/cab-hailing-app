@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,9 @@ public class RideActionsService {
 
 	@Autowired
 	WalletServiceRestConsumer walletServiceRestConsumer;
+	
+	@PersistenceContext
+	EntityManager em;
 
 	// ---------------------------------------------------------------------------------------------
 	/*
@@ -48,7 +55,7 @@ public class RideActionsService {
 		Logger.log("Received rideEnded request for ride id : " + rideId);
 
 		// Check if ride id is valid
-		Ride ride = rideRepo.findById(rideId).orElse(null);
+		Ride ride = em.find(Ride.class, rideId, LockModeType.PESSIMISTIC_WRITE); 
 
 		if (ride != null) {
 			String rideStatus = ride.getRideState();
@@ -56,12 +63,12 @@ public class RideActionsService {
 			if (rideStatus != null && rideStatus.equals(RideStates.ONGOING)) {
 				ride.setRideState(RideStates.COMPLETED);
 
-				CabStatus cabStatus = ride.getCabStatus();
+				CabStatus cabStatus = em.find(CabStatus.class, ride.getCabStatus().getCabID(), LockModeType.PESSIMISTIC_WRITE);
 				cabStatus.setMinorState(CabMinorStates.AVAILABLE);
 				cabStatus.setCurrPos(ride.getDestPos());
 
-				rideRepo.save(ride);
-				cabStatusRepo.save(cabStatus);
+				rideRepo.saveAndFlush(ride);
+				cabStatusRepo.saveAndFlush(cabStatus);
 
 				Logger.log("Ride ended successfully for ride id : " + rideId);
 				return true;
@@ -116,7 +123,7 @@ public class RideActionsService {
 		ride.setSrcPos(sourceLoc);
 		ride.setDestPos(destinationLoc);
 		ride.setCustID(custID);
-		ride = rideRepo.save(ride);
+		ride = rideRepo.saveAndFlush(ride);
 
 		long rideID = ride.getRideID();
 
@@ -152,6 +159,9 @@ public class RideActionsService {
 
 		// if a cab accepted the ride
 		if (selectedCab != null) {
+			// Taking lock as we are modifying cabStatus
+			selectedCab = em.find(CabStatus.class, selectedCab.getCabID(), LockModeType.PESSIMISTIC_WRITE); 
+			
 			long fare = calcFare(sourceLoc, selectedCab.getCurrPos(), destinationLoc);
 			Logger.log("requestRide: Calculated fare for ride id : " + rideID + " is : " + fare);
 
@@ -168,13 +178,13 @@ public class RideActionsService {
 					ride.setCabStatus(selectedCab);
 					ride.setRideState(RideStates.ONGOING);
 
-					ride = rideRepo.save(ride);
+					ride = rideRepo.saveAndFlush(ride);
 
 					CabStatus cabStatus = ride.getCabStatus();
 					cabStatus.setMinorState(CabMinorStates.GIVING_RIDE);
 					cabStatus.setCurrPos(sourceLoc);
 
-					cabStatusRepo.save(cabStatus);
+					cabStatusRepo.saveAndFlush(cabStatus);
 
 					Logger.log("requestRide: Ride started, CabID: " + selectedCab.getCabID() + ", RideID: " + rideID);
 					

@@ -3,6 +3,10 @@ package cab_hailing.ride_service.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,9 @@ public class CabActionsService {
 
 	@Autowired
 	CabServiceRestConsumer cabServiceRestConsumer;
+	
+	@PersistenceContext
+	EntityManager em;
 
 	// ---------------------------------------------------------------------------------------------
 
@@ -45,10 +52,10 @@ public class CabActionsService {
 		 * Check if cab id is valid If cab status record not found, then insert the
 		 * record houldn't happen ideally, but if so, then this is a quick fix
 		 */
-		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
+		CabStatus cabStatus = em.find(CabStatus.class, cabID, LockModeType.PESSIMISTIC_WRITE); 
 		if (cabStatus == null) {
 			cabStatus = new CabStatus(cabID, initialPos);
-			cabStatus = cabStatusRepo.save(cabStatus);
+			cabStatus = cabStatusRepo.saveAndFlush(cabStatus);
 		}
 
 		String cabMajorState = cabStatus.getMajorState();
@@ -58,7 +65,7 @@ public class CabActionsService {
 			cabStatus.setMajorState(CabMajorStates.SIGNED_IN);
 			cabStatus.setMinorState(CabMinorStates.AVAILABLE);
 			cabStatus.setCurrPos(Long.valueOf(initialPos));
-			cabStatusRepo.save(cabStatus);
+			cabStatusRepo.saveAndFlush(cabStatus);
 			return true;
 		}
 
@@ -76,7 +83,7 @@ public class CabActionsService {
 		Logger.log("Received request from Cab Service for sign out for cab id : " + cabID);
 
 		// Check if cab id is valid
-		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
+		CabStatus cabStatus = em.find(CabStatus.class, cabID, LockModeType.PESSIMISTIC_WRITE);
 
 		// Check if cab is in AVAILABLE state
 		if (cabStatus != null) {
@@ -89,7 +96,7 @@ public class CabActionsService {
 				cabStatus.setMinorState(CabMinorStates.NONE);
 				cabStatus.setCurrPos(Long.valueOf(-1));
 
-				cabStatusRepo.save(cabStatus);
+				cabStatusRepo.saveAndFlush(cabStatus);
 
 				Logger.log("Successfully signed out cab id : " + cabID);
 				return true;
@@ -124,6 +131,7 @@ public class CabActionsService {
 	public String getCabStatus(long cabID) {
 		Logger.log("Received getCabStatus request for cab id : " + cabID);
 		// Check if cab id is valid
+		// No lock needed here
 		CabStatus cabStatus = cabStatusRepo.findById(cabID).orElse(null);
 
 		String finalResponse = "";

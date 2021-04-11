@@ -24,7 +24,7 @@ tst_cab_signIn 101 10
 ./script44.sh &
 ./script45.sh &
 ./script46.sh
-sleep 5
+tst_global_sleep_med
 
 totalRides=0
 for i in $(cat sh1out sh2out sh3out sh4out sh5out sh6out);
