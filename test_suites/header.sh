@@ -185,16 +185,19 @@ function quit(){
 }
 
 function tst_global_sleep_low(){
-    echo "Sleeping for 2 seconds"
-    sleep 2
+    echo "Waiting for parallel jobs to complete"
+    # sleep 2
+    wait
 }
 
 function tst_global_sleep_med(){
-    echo "Sleeping for 5 seconds"
-    sleep 5
+    echo "Waiting for parallel jobs to complete"
+    # sleep 5
+    wait
 }
 
 function tst_global_sleep_high(){
-    echo "Sleeping for 10 seconds"
-    sleep 10
+    echo "Waiting for parallel jobs to complete"
+    # sleep 10
+    wait
 }

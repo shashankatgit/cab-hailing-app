@@ -2,7 +2,10 @@
 source ../../header.sh 
 
 # Scenario Description
-# Many concurrent addition and deduction to a single wallet
+# Many concurrent addition and deduction to a single user's wallet
+# In the end we check whether the total initial balance equals the
+# current balance as we have added and subtracted the same amount 
+# effectively
 
 # every test case should begin with these two steps
 tst_wallet_reset

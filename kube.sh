@@ -4,9 +4,16 @@ GREEN=$'\e[0;32m'
 RED=$'\e[0;31m'
 NC=$'\e[0m'
 
+# Reference for autoscaling in minikube : https://faun.pub/kubernetes-horizontal-pod-autoscaler-hpa-bb789b3070e4
+
+# changes done in yaml : specify resource limits for container
+
+# Enable metric server : minikube addons enable metrics-server
+
 var1=""
 
-echo "${RED}Ensure that minikube (minikube --driver=docker start) is running (Press a key)${NC}"
+echo "${RED}Ensure that minikube is running. Use the following command${NC}"
+echo "${GREEN}minikube start --extra-config=controller-manager.horizontal-pod-autoscaler-upscale-delay=1m --extra-config=controller-manager.horizontal-pod-autoscaler-downscale-delay=1m --extra-config=controller-manager.horizontal-pod-autoscaler-sync-period=10s --extra-config=controller-manager.horizontal-pod-autoscaler-downscale-stabilization=1m${NC}"
 read var1
 
 echo "Running minikube docker-env"
@@ -77,6 +84,14 @@ echo "______________________________________________________"
 
 # -------------------------------------------------------------------------------------------------------------------
 
+echo "Creating HPA (HorizontalPodAutoscalar) with 1-4 range of pods for Ride Service"
+echo "______________________________________________________"
+minikube kubectl -- delete hpa ride-service
+minikube kubectl -- autoscale deployment ride-service --cpu-percent=25 --min=1 --max=4
+
+
+# -------------------------------------------------------------------------------------------------------------------
+
 
 echo "${RED}Would you like to delete existing services? (y/n)${NC}"
 read var1
@@ -144,6 +159,14 @@ echo "______________________________________________________"
 minikube kubectl -- get services
 
 echo "______________________________________________________"
+
+echo "View HP autoscalar status for ride service : minikube kubectl -- get hpa"
+echo "______________________________________________________"
+
+minikube kubectl -- get hpa
+
+echo "______________________________________________________"
+
 
 
 # -------------------------------------------------------------------------------------------------------------------

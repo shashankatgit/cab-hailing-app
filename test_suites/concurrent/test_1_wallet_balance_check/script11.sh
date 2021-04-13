@@ -1,15 +1,13 @@
 #! /bin/bash
 source ../../header.sh 
-rm -f sh1out
 
-#Step 1 : cab 101 signs in
-tst_cab_signIn 101 0
-br
+outputFileName=$1
+custId=$2
 
-# Step 2: customer 201 requests a cab
+# Step 1: customer 201 requests a cab
 rideDetails="-1"
 
-tst_ride_requestRide rideDetails 201 50 100
+tst_ride_requestRide rideDetails $custId 50 100
 echo "$rideDetails"
 
 rideId=$(echo $rideDetails | cut -d' ' -f 1)
@@ -18,8 +16,8 @@ fare=$(echo $rideDetails | cut -d' ' -f 3)
 
 if [ "$rideId" == "-1" ];
 then
-    echo "Ride to customer 201 denied."
+    echo "Ride to customer 201 denied"
 else
     echo "Ride by customer 201 started"
-    echo $fare >> sh1out
+    echo $fare > $outputFileName
 fi
